@@ -1,1 +1,1 @@
-# newjeansbunnies-android
+#NewJeans Bunnies SNS
