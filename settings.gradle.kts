@@ -15,4 +15,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "newjeans-bunnies"
 include(":app")
- 
+include(":auth")
+include(":post")
+include(":image")

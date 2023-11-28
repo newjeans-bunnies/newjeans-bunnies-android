@@ -1,4 +1,4 @@
-package newjeans.bunnies.newjeansbunnies
+package newjeans.bunnies.post.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,9 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import newjeans.bunnies.newjeansbunnies.ui.theme.NewjeansbunniesTheme
+import newjeans.bunnies.post.ui.theme.NewjeansbunniesTheme
 
-class MainActivity : ComponentActivity() {
+class PostActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
