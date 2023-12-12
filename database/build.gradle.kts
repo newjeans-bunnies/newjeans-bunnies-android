@@ -7,9 +7,8 @@ plugins {
     id("realm-android")
 }
 
-
 android {
-    namespace = "newjeans.bunnies"
+    namespace = "newjeans.bunnies.database"
     compileSdk = 33
 
     defaultConfig {
@@ -40,21 +39,11 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
+
 
     dependencies {
         implementation (libs.library.base.v1110)
         implementation (libs.library.sync.v1110)// If using Device Sync
-        implementation (libs.kotlinx.coroutines.core.v170) // If using coroutines with the SDK
+        implementation (libs.coroutines.core) // If using coroutines with the SDK
     }
 }
