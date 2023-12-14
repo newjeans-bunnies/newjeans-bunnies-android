@@ -1,49 +1,31 @@
-@Suppress("DSL_SCOPE_VIOLATION")
-
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
-    id("kotlin-kapt")
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("realm-android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.android.application) apply false
 }
 
 android {
     namespace = "newjeans.bunnies.database"
-    compileSdk = 33
-
+    compileSdkVersion = "android-34"
     defaultConfig {
-        applicationId = "newjeans.bunnies"
         minSdk = 26
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
-
-        vectorDrawables {
-            useSupportLibrary = true
-        }
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
+}
+
+dependencies {
+
+    constraints {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21") {
+            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
+        }
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21") {
+            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
+        }
     }
 
-
-    dependencies {
-        implementation (libs.library.base.v1110)
-        implementation (libs.library.sync.v1110)// If using Device Sync
-        implementation (libs.coroutines.core) // If using coroutines with the SDK
-    }
 }

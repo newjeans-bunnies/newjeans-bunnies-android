@@ -6,10 +6,13 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(libs.hilt.android.gradle.plugin)
-        classpath(libs.realm.plugin)
+        classpath(libs.gradle.dependency.graph.generator.plugin)
+//        classpath(libs.hilt.android.gradle.plugin)
+//        classpath(libs.realm.gradle)
+//        classpath(libs.realm.transformer)
     }
 }
+
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
