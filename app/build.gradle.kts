@@ -34,6 +34,7 @@ android {
     }
 
     dependencies {
+        implementation(libs.androidx.core.splashscreen)
 
         constraints {
             implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21") {
