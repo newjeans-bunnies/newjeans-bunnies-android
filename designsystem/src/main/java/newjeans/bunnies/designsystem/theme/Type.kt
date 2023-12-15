@@ -5,7 +5,6 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
@@ -27,7 +26,20 @@ val authText = Typography(
         fontFamily = pretendard,
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        color = AuthTextMainColor
+    ),
+
+    titleMedium = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.Bold,
+        fontSize = 17.sp,
+        color = AuthTextMainColor
+    ),
+
+    labelMedium = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.Light,
+        fontSize = 16.sp,
+        color = AuthTextMainColor
     )
 )
