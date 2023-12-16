@@ -29,6 +29,7 @@ val authText = Typography(
         color = AuthTextMainColor
     ),
 
+    //버튼 텍스트
     titleMedium = TextStyle(
         fontFamily = pretendard,
         fontWeight = FontWeight.Bold,
