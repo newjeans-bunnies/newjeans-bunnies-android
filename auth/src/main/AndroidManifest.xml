@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-    <application>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:screenOrientation="portrait">
         <activity
             android:name=".presentation.AuthActivity"
-            android:exported="true"
             android:configChanges="uiMode"
-            android:theme="@style/Theme.newjeansBunnies.TransparentSystemBar">
+            android:exported="true"
+            android:theme="@style/Theme.newjeansBunnies">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,4 +19,5 @@
         </activity>
 
     </application>
+
 </manifest>
