@@ -3,18 +3,29 @@ package newjeans.bunnies.auth.presentation
 
 import android.os.Bundle
 
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.viewModels
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
-import newjeans.bunnies.auth.navigation.NavigationRoute
+import dagger.hilt.android.AndroidEntryPoint
+
+import newjeans.bunnies.auth.presentation.navigation.NavigationRoute
+import newjeans.bunnies.auth.viewmodel.LoginViewModel
+import newjeans.bunnies.auth.viewmodel.SignupViewModel
 
 
-class AuthActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class AuthActivity : ComponentActivity() {
+
+    private val loginViewModel : LoginViewModel by viewModels()
+    private val signupViewModel : SignupViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             val navController = rememberNavController()
             NavHost(
@@ -23,14 +34,16 @@ class AuthActivity : AppCompatActivity() {
             ) {
                 composable(NavigationRoute.loginRoute) {
                     LoginScreen(
+                        loginViewModel = loginViewModel,
                         onNavigateToSignup = { navController.navigate(NavigationRoute.signupRoute) }
                     )
                 }
                 composable(NavigationRoute.signupRoute) {
-                    SignupScreen()
+                    SignupScreen(
+                        signupViewModel = signupViewModel
+                    )
                 }
             }
         }
     }
 }
-

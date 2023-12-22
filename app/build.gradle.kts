@@ -3,6 +3,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
+    id ("com.google.dagger.hilt.android")
 }
 
 android {
@@ -15,12 +17,15 @@ android {
         versionCode = 1
         versionName = "1.0"
         minSdk = 26
-
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/gradle/incremental.annotation.processors"
         }
     }
     buildTypes {
@@ -28,13 +33,13 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+
 
     dependencies {
-        implementation(libs.androidx.core.splashscreen)
+        implementation(project(":designsystem"))
+        implementation(project(":database"))
+        implementation(project(":auth"))
+        implementation(project(":di"))
 
         constraints {
             implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21") {
@@ -45,7 +50,7 @@ android {
             }
         }
 
-        implementation(project(":auth"))
-        implementation(project(":database"))
+        implementation(libs.hilt.android)
+        kapt(libs.hilt.compiler)
     }
 }

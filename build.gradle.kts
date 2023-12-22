@@ -7,7 +7,7 @@ buildscript {
     }
     dependencies {
         classpath(libs.gradle.dependency.graph.generator.plugin)
-//        classpath(libs.hilt.android.gradle.plugin)
+        classpath(libs.hilt.android.gradle.plugin)
 //        classpath(libs.realm.gradle)
 //        classpath(libs.realm.transformer)
     }

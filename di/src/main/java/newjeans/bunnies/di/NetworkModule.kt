@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import newjeans.bunnies.network.auth.AuthApi
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -23,7 +24,6 @@ class NetworkModule {
     fun provideAuthApi(retrofit: Retrofit): AuthApi =
         retrofit.create(AuthApi::class.java)
 
-
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
@@ -34,9 +34,12 @@ class NetworkModule {
             .build()
     }
 
+    /* OkHttp로 세부적인 네트워크 구성요소를 설정 */
+
     @Singleton
     @Provides
     fun provideOkHttpClient(
+        headerInterceptor: Interceptor,
         loggerInterceptor: HttpLoggingInterceptor,
     ): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient().newBuilder()
@@ -44,6 +47,7 @@ class NetworkModule {
         okHttpClientBuilder.readTimeout(60, TimeUnit.SECONDS)
         okHttpClientBuilder.writeTimeout(60, TimeUnit.SECONDS)
         okHttpClientBuilder.addInterceptor(loggerInterceptor)
+        okHttpClientBuilder.addInterceptor(headerInterceptor)
 
         return okHttpClientBuilder.build()
     }
@@ -52,4 +56,15 @@ class NetworkModule {
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+
+    @Provides
+    @Singleton
+    fun provideHeaderInterceptor() = Interceptor { chain ->
+        with(chain) {
+            val newRequest = request().newBuilder()
+                .addHeader("Authorization", "Bearer")
+                .build()
+            proceed(newRequest)
+        }
+    }
 }

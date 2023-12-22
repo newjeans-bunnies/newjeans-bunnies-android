@@ -3,39 +3,33 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.android.application) apply false
+    id ("com.google.dagger.hilt.android")
+    id ("kotlin-kapt")
 }
 
 android {
     namespace = "newjeans.bunnies.auth"
     compileSdkVersion = "android-34"
 
-    defaultConfig {
-        minSdk = 26
-
-
-        vectorDrawables {
-            useSupportLibrary = true
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.3"
     }
     buildFeatures {
         compose = true
+    }
+    packaging {
+        resources {
+            excludes += "META-INF/gradle/incremental.annotation.processors"
+        }
     }
 }
 
@@ -49,6 +43,8 @@ dependencies {
         }
     }
 
+    implementation(project(":di"))
+    implementation(project(":network"))
     implementation(project(":database"))
     implementation(project(":designsystem"))
 
@@ -59,10 +55,15 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.navigation)
+    implementation (libs.androidx.runtime.livedata)
+
     debugImplementation(libs.androidx.ui.tooling)
 
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling.preview)
+
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 
 
     implementation(libs.androidx.core.ktx)

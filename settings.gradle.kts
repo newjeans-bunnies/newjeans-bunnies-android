@@ -19,5 +19,7 @@ include(
     ":app",
     ":designsystem",
     ":auth",
-    ":database"
+    ":database",
+    ":di",
+    ":network"
 )

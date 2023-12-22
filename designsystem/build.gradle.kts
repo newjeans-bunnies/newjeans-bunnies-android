@@ -1,4 +1,4 @@
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
+@Suppress("DSL_SCOPE_VIOLATION")
 
 plugins {
     alias(libs.plugins.android.library)
@@ -8,13 +8,14 @@ plugins {
 android {
     namespace = "newjeans.bunnies.designsystem"
     compileSdkVersion = "android-34"
-    defaultConfig {
-        minSdk = 26
-
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    packaging {
+        resources {
+            excludes += "META-INF/gradle/incremental.annotation.processors"
+        }
     }
 }
 
@@ -28,7 +29,6 @@ dependencies {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
-    implementation(libs.room.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.material3)
 

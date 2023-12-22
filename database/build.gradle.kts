@@ -8,12 +8,15 @@ plugins {
 android {
     namespace = "newjeans.bunnies.database"
     compileSdkVersion = "android-34"
-    defaultConfig {
-        minSdk = 26
-    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    packaging {
+        resources {
+            excludes += "META-INF/gradle/incremental.annotation.processors"
+        }
     }
 }
 
