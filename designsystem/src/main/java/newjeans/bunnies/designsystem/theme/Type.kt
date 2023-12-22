@@ -2,6 +2,7 @@ package newjeans.bunnies.designsystem.theme
 
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.TextStyle
@@ -22,6 +23,12 @@ val pretendard = FontFamily(
 )
 
 val authText = Typography(
+    headlineLarge = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        color = Color.Black
+    ),
     bodyMedium = TextStyle(
         fontFamily = pretendard,
         fontWeight = FontWeight.SemiBold,
