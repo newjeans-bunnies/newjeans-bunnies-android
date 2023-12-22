@@ -6,7 +6,7 @@ import newjeans.bunnies.designsystem.R
 
 @Composable
 fun AutoLoginCheckBox(checkStatus: Boolean, checkEvent: (Boolean) -> Unit) {
-    newjeans.bunnies.auth.presentation.CustomCheckbox(checked = checkStatus,
+    CustomCheckbox(checked = checkStatus,
         onPainter = painterResource(id = R.drawable.ic_check_box_true),
         offPainter = painterResource(id = R.drawable.ic_check_box_falue),
         onCheckedChange = { checkEvent(it) })
@@ -14,8 +14,8 @@ fun AutoLoginCheckBox(checkStatus: Boolean, checkEvent: (Boolean) -> Unit) {
 
 @Composable
 fun PasswordStatusCheckBox(checkStatus: Boolean, checkEvent: (Boolean) -> Unit) {
-    newjeans.bunnies.auth.presentation.CustomCheckbox(checked = checkStatus,
-        onPainter = painterResource(id = R.drawable.ic_hide),
-        offPainter = painterResource(id = R.drawable.ic_show),
+    CustomCheckbox(checked = checkStatus,
+        onPainter = painterResource(id = R.drawable.ic_show),
+        offPainter = painterResource(id = R.drawable.ic_hide),
         onCheckedChange = { checkEvent(it) })
 }

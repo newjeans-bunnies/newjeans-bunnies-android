@@ -50,13 +50,13 @@ val authText = Typography(
     titleSmall = TextStyle(
         fontFamily = pretendard,
         fontWeight = FontWeight.Medium,
-        fontSize = 10.sp,
+        fontSize = 13.sp,
         color = AuthTextErrorColor
     ),
 
     labelMedium = TextStyle(
         fontFamily = pretendard,
-        fontWeight = FontWeight.Light,
+        fontWeight = FontWeight.ExtraLight,
         fontSize = 16.sp,
         color = AuthTextMainColor
     )
