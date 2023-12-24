@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-import newjeans.bunnies.network.auth.AuthApi
 import newjeans.bunnies.network.auth.AuthRepository
 import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
 
@@ -37,7 +36,7 @@ class LoginViewModel @Inject constructor(
         get() = _loginError
 
 
-    fun login(userId: String, password: String) {
+    fun login(userId: String, password: String, autoLogin: Boolean) {
         viewModelScope.launch {
             kotlin.runCatching {
                 authRepository.login(
@@ -47,6 +46,7 @@ class LoginViewModel @Inject constructor(
                     )
                 )
             }.onSuccess {
+                Log.d("login Success", it.toString())
 //                val prefs = NewJeansBunniesApplication.prefs
 //                prefs.accessToken = it.accessToken
 //                prefs.autoLogin = autoLogin.value?:false

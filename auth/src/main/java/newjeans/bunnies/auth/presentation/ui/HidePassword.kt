@@ -1,9 +1,11 @@
 package newjeans.bunnies.auth.presentation.ui
 
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
+
 import newjeans.bunnies.designsystem.R
-import newjeans.bunnies.auth.presentation.CustomCheckbox
+
 
 @Composable
 fun PasswordStatusCheckBox(onCheckedChangeEvent: (Boolean) -> Unit, checked: Boolean) {

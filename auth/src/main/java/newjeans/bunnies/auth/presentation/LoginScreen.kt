@@ -2,6 +2,7 @@ package newjeans.bunnies.auth.presentation
 
 
 import android.util.Log
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+
 import newjeans.bunnies.auth.presentation.ui.AppIconImage
 import newjeans.bunnies.auth.presentation.ui.AutoLoginCheckBox
 import newjeans.bunnies.auth.presentation.ui.EditTextLabel
@@ -43,7 +45,6 @@ import newjeans.bunnies.auth.presentation.ui.TextButton
 import newjeans.bunnies.auth.presentation.ui.image.IdIconImage
 import newjeans.bunnies.auth.presentation.ui.image.PasswordIconImage
 import newjeans.bunnies.auth.viewmodel.LoginViewModel
-
 import newjeans.bunnies.designsystem.theme.AuthEditTextColor
 import newjeans.bunnies.designsystem.theme.authText
 
@@ -57,7 +58,7 @@ const val idMaxValueLength = 10
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
-    onNavigateToSignup: () -> Unit
+    onNavigateToSignup: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally

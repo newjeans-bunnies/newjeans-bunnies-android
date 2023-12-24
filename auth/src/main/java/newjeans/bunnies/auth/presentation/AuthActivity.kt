@@ -1,6 +1,5 @@
 package newjeans.bunnies.auth.presentation
 
-
 import android.os.Bundle
 
 import androidx.activity.ComponentActivity
@@ -20,8 +19,8 @@ import newjeans.bunnies.auth.viewmodel.SignupViewModel
 @AndroidEntryPoint
 class AuthActivity : ComponentActivity() {
 
-    private val loginViewModel : LoginViewModel by viewModels()
-    private val signupViewModel : SignupViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels()
+    private val signupViewModel: SignupViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +39,8 @@ class AuthActivity : ComponentActivity() {
                 }
                 composable(NavigationRoute.signupRoute) {
                     SignupScreen(
-                        signupViewModel = signupViewModel
+                        signupViewModel = signupViewModel,
+                        onNavigateToLogin = { navController.navigate(NavigationRoute.loginRoute) }
                     )
                 }
             }
