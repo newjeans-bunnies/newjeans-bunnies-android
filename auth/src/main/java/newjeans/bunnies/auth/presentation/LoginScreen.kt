@@ -64,16 +64,20 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AppIconImage()
-        IdEditText()
+        LoginIdEditText()
         Spacer(modifier = Modifier.height(20.dp))
-        PasswordEditText(loginViewModel)
+        LoginPasswordEditText(loginViewModel)
         Spacer(modifier = Modifier.height(6.dp))
         LoginErrorMessage(loginViewModel)
         Spacer(modifier = Modifier.height(3.dp))
         AutoLoginLayout(loginViewModel)
         Spacer(modifier = Modifier.height(30.dp))
-        MainButton("로그인"){
-            loginViewModel.login(userId, password, autoLogin = loginViewModel.autoLogin.value?:false)
+        MainButton("로그인") {
+            loginViewModel.login(
+                userId,
+                password,
+                autoLogin = loginViewModel.autoLogin.value ?: false
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
         TextButton("계정 만들기", onNavigateToSignup)
@@ -90,8 +94,8 @@ fun AutoLoginLayout(loginViewModel: LoginViewModel) {
 
     ) {
         AutoLoginCheckBox(loginViewModel.autoLogin.value ?: true) {
-            Log.d("AutoLogin",it.toString())
-            Log.d("autoLogin.value",loginViewModel.autoLogin.value.toString())
+            Log.d("AutoLogin", it.toString())
+            Log.d("autoLogin.value", loginViewModel.autoLogin.value.toString())
             loginViewModel.autoLogin(it)
         }
         Spacer(modifier = Modifier.width(16.dp))
@@ -120,11 +124,11 @@ fun LoginErrorMessage(loginViewModel: LoginViewModel) {
 
 @Composable
 @Preview
-fun IdEditText() {
+fun LoginIdEditText() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 30.dp, end = 30.dp)
+            .padding(6.dp)
     ) {
         EditTextLabel("아이디")
         BasicTextField(value = userId,
@@ -133,7 +137,7 @@ fun IdEditText() {
             },
             modifier = Modifier
                 .height(60.dp)
-                .padding(top = 6.dp)
+                .padding(top = 6.dp, start = 24.dp, end = 24.dp)
                 .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp)),
             singleLine = false,
             visualTransformation = VisualTransformation.None,
@@ -157,7 +161,7 @@ fun IdEditText() {
 }
 
 @Composable
-fun PasswordEditText(
+fun LoginPasswordEditText(
     loginViewModel: LoginViewModel
 ) {
     val hidePassword by loginViewModel.hidePassword.observeAsState()
@@ -165,7 +169,7 @@ fun PasswordEditText(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 30.dp, end = 30.dp)
+            .padding(6.dp)
     ) {
         EditTextLabel(text = "비밀번호")
         BasicTextField(value = password,
@@ -174,7 +178,7 @@ fun PasswordEditText(
             },
             modifier = Modifier
                 .height(60.dp)
-                .padding(top = 6.dp)
+                .padding(top = 6.dp, start = 24.dp, end = 24.dp)
                 .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp))
                 .border(0.dp, Color.Transparent), // 테두리 제거
             visualTransformation = if (hidePassword == true) VisualTransformation.None

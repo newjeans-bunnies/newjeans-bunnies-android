@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import newjeans.bunnies.auth.presentation.passwordMaxValueLength
 import newjeans.bunnies.auth.presentation.ui.image.PasswordIconImage
@@ -34,6 +36,7 @@ fun PasswordEditText(hint: String) {
         },
         modifier = Modifier
             .height(50.dp)
+            .padding(start = 30.dp, end = 30.dp)
             .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp)),
         visualTransformation = if (hidePasswordStatus) VisualTransformation.None
         else PasswordVisualTransformation(),
@@ -45,12 +48,11 @@ fun PasswordEditText(hint: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp, end = 30.dp),
+                    .padding(start = 20.dp, end = 30.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(modifier = Modifier.width(4.dp))
-                PasswordIconImage()
-                Spacer(modifier = Modifier.width(20.dp))
+                if (password.isEmpty())
+                    Text(text = hint, style = authText.bodySmall)
                 innerTextField()
                 Spacer(modifier = Modifier.weight(1f))
                 PasswordStatusCheckBox(checked = hidePasswordStatus, onCheckedChangeEvent = {

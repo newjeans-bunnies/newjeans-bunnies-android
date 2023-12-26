@@ -20,15 +20,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-import newjeans.bunnies.auth.presentation.idMaxValueLength
+import newjeans.bunnies.designsystem.theme.AuthButtonColor
 import newjeans.bunnies.designsystem.theme.AuthEditTextColor
 import newjeans.bunnies.designsystem.theme.authText
 
 
 @Composable
-fun EditTextEndButton(hint: String, event: (String) -> Unit, buttonText: String) {
+fun EditTextEndButton(
+    hint: String,
+    event: (String) -> Unit,
+    buttonText: String,
+    maxValueLength: Int
+) {
 
     var text = ""
 
@@ -38,15 +44,16 @@ fun EditTextEndButton(hint: String, event: (String) -> Unit, buttonText: String)
             .padding(start = 30.dp, end = 30.dp)
             .height(50.dp)
     ) {
-        BasicTextField(value = text,
+        BasicTextField(
+            value = text,
             onValueChange = {
-                if (it.length > idMaxValueLength) {
+                if (it.length <= maxValueLength) {
                     text = it
                 }
             },
             modifier = Modifier
+                .weight(1F)
                 .height(50.dp)
-                .padding(top = 6.dp)
                 .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp)),
             visualTransformation = VisualTransformation.None,
             textStyle = authText.bodyMedium,
@@ -55,7 +62,7 @@ fun EditTextEndButton(hint: String, event: (String) -> Unit, buttonText: String)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 18.dp),
+                        .padding(start = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (text.isEmpty())
@@ -76,10 +83,19 @@ fun EditTextEndButton(hint: String, event: (String) -> Unit, buttonText: String)
                     }, indication = null
                 )
                 .size(width = 120.dp, height = 50.dp)
+                .background(AuthButtonColor, shape = RoundedCornerShape(size = 13.dp)),
         ) {
             Text(
-                text = buttonText, style = authText.labelMedium
+                modifier = Modifier.align(Alignment.Center),
+                text = buttonText,
+                style = authText.labelMedium
             )
         }
     }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun Preview() {
+    EditTextEndButton(hint = "아이디", event = {}, buttonText = "중복확인", maxValueLength = 10)
 }

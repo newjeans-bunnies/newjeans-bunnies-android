@@ -66,7 +66,23 @@ val authText = Typography(
         fontWeight = FontWeight.ExtraLight,
         fontSize = 16.sp,
         color = AuthTextMainColor
+    ),
+
+    headlineMedium = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        color = AuthRadioButtonTextColor
+    ),
+
+    labelLarge = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        color = Color.Black
     )
+
+
 
 
 )
