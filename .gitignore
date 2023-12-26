@@ -136,3 +136,4 @@ gradle/
 gradle.properties
 gradlew
 gradlew.bat
+google-services.json
