@@ -4,11 +4,14 @@ import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
 import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
 import newjeans.bunnies.network.auth.dto.response.LoginResponseDto
 import newjeans.bunnies.network.auth.dto.response.SignupResponseDto
+import newjeans.bunnies.network.global.response.StatusResponseDto
 
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface AuthApi {
     @POST("/api/auth/login")
@@ -25,4 +28,9 @@ interface AuthApi {
     suspend fun refresh(
         @Header("refresh-token") token: String
     )
+
+    @GET("/api/user")
+    suspend fun checkUser(
+        @Query("userId") userId: String
+    ): StatusResponseDto
 }
