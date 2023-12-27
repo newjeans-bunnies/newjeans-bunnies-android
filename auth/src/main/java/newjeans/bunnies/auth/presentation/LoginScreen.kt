@@ -1,8 +1,6 @@
 package newjeans.bunnies.auth.presentation
 
 
-import android.util.Log
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 import newjeans.bunnies.auth.presentation.ui.AppIconImage
-import newjeans.bunnies.auth.presentation.ui.AutoLoginCheckBox
+import newjeans.bunnies.auth.presentation.ui.CheckBox
 import newjeans.bunnies.auth.presentation.ui.EditTextLabel
 import newjeans.bunnies.auth.presentation.ui.ErrorMessageText
 import newjeans.bunnies.auth.presentation.ui.MainButton
@@ -65,18 +63,17 @@ fun LoginScreen(
     ) {
         AppIconImage()
         LoginIdEditText()
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         LoginPasswordEditText(loginViewModel)
         Spacer(modifier = Modifier.height(6.dp))
         LoginErrorMessage(loginViewModel)
-        Spacer(modifier = Modifier.height(3.dp))
         AutoLoginLayout(loginViewModel)
         Spacer(modifier = Modifier.height(30.dp))
         MainButton("로그인") {
             loginViewModel.login(
                 userId,
                 password,
-                autoLogin = loginViewModel.autoLogin.value ?: false
+                autoLogin = loginViewModel.autoLoginStatus.value ?: false
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -86,6 +83,9 @@ fun LoginScreen(
 
 @Composable
 fun AutoLoginLayout(loginViewModel: LoginViewModel) {
+
+    val autoLoginStatus by loginViewModel.autoLoginStatus.observeAsState()
+
     Row(
         modifier = Modifier
             .padding(start = 40.dp)
@@ -93,9 +93,7 @@ fun AutoLoginLayout(loginViewModel: LoginViewModel) {
         verticalAlignment = Alignment.CenterVertically
 
     ) {
-        AutoLoginCheckBox(loginViewModel.autoLogin.value ?: true) {
-            Log.d("AutoLogin", it.toString())
-            Log.d("autoLogin.value", loginViewModel.autoLogin.value.toString())
+        CheckBox(autoLoginStatus ?: false) {
             loginViewModel.autoLogin(it)
         }
         Spacer(modifier = Modifier.width(16.dp))
@@ -105,7 +103,7 @@ fun AutoLoginLayout(loginViewModel: LoginViewModel) {
 
 @Composable
 fun LoginErrorMessage(loginViewModel: LoginViewModel) {
-    val hidePassword by loginViewModel.loginError.observeAsState()
+    val hidePassword by loginViewModel.loginErrorStatus.observeAsState()
 
     Row(
         modifier = Modifier

@@ -26,14 +26,14 @@ class LoginViewModel @Inject constructor(
         get() = _hidePassword
 
 
-    private val _autoLogin = MutableLiveData(false)
-    val autoLogin: LiveData<Boolean>
-        get() = _autoLogin
+    private val _autoLoginStatus = MutableLiveData(false)
+    val autoLoginStatus: LiveData<Boolean>
+        get() = _autoLoginStatus
 
-    private val _loginError = MutableLiveData(false)
+    private val _loginErrorStatus = MutableLiveData(false)
 
-    val loginError: LiveData<Boolean>
-        get() = _loginError
+    val loginErrorStatus: LiveData<Boolean>
+        get() = _loginErrorStatus
 
 
     fun login(userId: String, password: String, autoLogin: Boolean) {
@@ -54,18 +54,18 @@ class LoginViewModel @Inject constructor(
 //                    prefs.refreshToken = it.refreshToken
 //                _loginError.value = false
             }.onFailure { e ->
-                _loginError.value = true
-                Log.d("LoginViewModel", e.message.toString())
+                if (e.message == "HTTP 400")
+                    _loginErrorStatus.value = true
             }
         }
     }
 
     fun loginError(status: Boolean) {
-        _loginError.value = status
+        _loginErrorStatus.value = status
     }
 
     fun autoLogin(status: Boolean) {
-        _autoLogin.value = status
+        _autoLoginStatus.value = status
     }
 
     fun hidePassword(status: Boolean) {
