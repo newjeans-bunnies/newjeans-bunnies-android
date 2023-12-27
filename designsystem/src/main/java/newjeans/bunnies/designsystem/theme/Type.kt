@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
@@ -13,13 +14,13 @@ import newjeans.bunnies.designsystem.R
 
 
 val pretendard = FontFamily(
-    Font(R.font.pretendard_bold),
-    Font(R.font.pretendard_extra_bold),
-    Font(R.font.pretendard_light),
-    Font(R.font.pretendard_medium),
-    Font(R.font.pretendard_semi_bold),
-    Font(R.font.pretendard_regular),
-    Font(R.font.pretendard_thin)
+    Font(R.font.pretendard_bold, FontWeight.Bold, FontStyle.Normal),
+    Font(R.font.pretendard_extra_bold, FontWeight.ExtraBold, FontStyle.Normal),
+    Font(R.font.pretendard_light, FontWeight.Light, FontStyle.Normal),
+    Font(R.font.pretendard_medium, FontWeight.Medium, FontStyle.Normal),
+    Font(R.font.pretendard_semi_bold, FontWeight.SemiBold, FontStyle.Normal),
+    Font(R.font.pretendard_regular, FontWeight.Normal, FontStyle.Normal),
+    Font(R.font.pretendard_thin, FontWeight.Thin, FontStyle.Normal),
 )
 
 val authText = Typography(
@@ -63,7 +64,7 @@ val authText = Typography(
 
     labelMedium = TextStyle(
         fontFamily = pretendard,
-        fontWeight = FontWeight.ExtraLight,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,
         color = AuthTextMainColor
     ),
@@ -72,15 +73,32 @@ val authText = Typography(
         fontFamily = pretendard,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
-        color = AuthRadioButtonTextColor
+        color = Color.Black
     ),
 
     labelLarge = TextStyle(
         fontFamily = pretendard,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        color = Color.Black
+    ),
+
+
+    //약관 동의
+    displayMedium = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.Normal,
+        fontSize = 17.sp,
+        color = Color.Black
+    ),
+
+    displaySmall = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         color = Color.Black
     )
+
 
 
 
