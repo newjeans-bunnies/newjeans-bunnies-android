@@ -1,6 +1,8 @@
 package newjeans.bunnies.auth.viewmodel
 
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -11,8 +13,24 @@ import newjeans.bunnies.network.auth.AuthRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class SignupViewModel @Inject
-constructor() : ViewModel() {
+class SignupViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
+
+    //이용약관 동의
+    private val _useAgreementButton = MutableLiveData(false)
+    val useAgreementStatus: LiveData<Boolean>
+        get() = _useAgreementButton
+
+    //개인정보 동의
+    private val _informationConsentButton = MutableLiveData(false)
+    val informationConsentStatus: LiveData<Boolean>
+        get() = _informationConsentButton
+
+    //유저 아이디 중복 체크
+    private val _userCheckStatus = MutableLiveData<Boolean>()
+    val userCheckStatus: LiveData<Boolean>
+        get() = _userCheckStatus
 
     //비밀번호 숨기기
     private val _hidePassword = MutableLiveData(false)

@@ -1,5 +1,6 @@
 package newjeans.bunnies.auth.presentation.ui
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,14 +17,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+
 import newjeans.bunnies.designsystem.theme.AuthRadioButtonBackgroundColor
 import newjeans.bunnies.designsystem.theme.AuthRadioButtonColor
 import newjeans.bunnies.designsystem.theme.authText
 
 
 @Composable
-fun SelectCountryRadioButton() {
-    val countryOptions = listOf("KR", "JP", "CN", "US")
+fun SelectCountryRadioButton(countryOptions: List<String>) {
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(countryOptions[1]) }
     Row(
         modifier = Modifier
