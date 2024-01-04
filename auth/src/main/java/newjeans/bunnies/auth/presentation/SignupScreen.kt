@@ -1,7 +1,6 @@
 package newjeans.bunnies.auth.presentation
 
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -29,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+
 import newjeans.bunnies.auth.presentation.ui.CertificationNumberEditTextEndButton
 import newjeans.bunnies.auth.presentation.ui.CheckBox
 import newjeans.bunnies.auth.presentation.ui.CheckPasswordEditText
@@ -39,10 +39,10 @@ import newjeans.bunnies.auth.presentation.ui.MainButton
 import newjeans.bunnies.auth.presentation.ui.PasswordEditText
 import newjeans.bunnies.auth.presentation.ui.PhoneNumberEditTextEndButton
 import newjeans.bunnies.auth.presentation.ui.SelectCountryRadioButton
-
 import newjeans.bunnies.auth.viewmodel.SignupViewModel
 import newjeans.bunnies.designsystem.R
 import newjeans.bunnies.designsystem.theme.authText
+import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
 
 
 @Composable
@@ -51,6 +51,10 @@ fun SignupScreen(
 ) {
     val hidePassword by signupViewModel.hidePassword.observeAsState()
     val hideCheckPassword by signupViewModel.hideCheckPassword.observeAsState()
+    val password by signupViewModel.password.observeAsState()
+    val checkPassword by signupViewModel.checkPassword.observeAsState()
+    val userId by signupViewModel.userId.observeAsState()
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -66,13 +70,14 @@ fun SignupScreen(
             IdEditTextEndButton(hint = "아이디", event = { userId ->
                 if (userId.isNotBlank())
                     signupViewModel.checkUser(userId)
-            }, buttonText = "중복확인", maxValueLength = 10)
+            }, buttonText = "중복확인", maxValueLength = 10, chageEvent = {
+                signupViewModel.userId(it)
+            })
             LoginErrorMessage(signupViewModel)
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "비밀번호")
             Spacer(modifier = Modifier.height(10.dp))
             PasswordEditText(hint = "비밀번호", hidePassword ?: false) {
-                Log.d("클릭", signupViewModel.hidePassword.value.toString())
                 signupViewModel.hidePassword(it)
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -93,8 +98,8 @@ fun SignupScreen(
             SelectCountryRadioButton(listOf("KR", "JP", "CN", "US"))
             Spacer(modifier = Modifier.height(30.dp))
             ConditionsOfUse(signupViewModel)
-            Spacer(modifier = Modifier.height(40.dp))
-            MainButton(event = { signup() }, message = "계정 만들기")
+            Spacer(modifier = Modifier.height(30.dp))
+//            MainButton(event = { signup(signupViewModel, SignupReqeustDto()) }, message = "계정 만들기")
             Spacer(modifier = Modifier.height(20.dp))
         }
     }
@@ -115,7 +120,7 @@ fun SignupAppBar(
     ) {
         IconButton(
             onClick = onNavigateToLogin, modifier = Modifier
-                .padding(start = 20.dp)
+                .padding(start = 10.dp)
                 .height(60.dp)
         ) {
             Icon(
@@ -138,7 +143,8 @@ fun SignupAppBar(
     }
 }
 
-fun signup() {
+fun signup(signupViewModel: SignupViewModel, signupReqeustDto: SignupReqeustDto) {
+    signupViewModel.signup(signupReqeustDto)
 }
 
 

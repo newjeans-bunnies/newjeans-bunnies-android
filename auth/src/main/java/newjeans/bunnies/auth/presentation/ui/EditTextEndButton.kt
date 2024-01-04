@@ -44,6 +44,7 @@ fun IdEditTextEndButton(
     event: (String) -> Unit,
     buttonText: String,
     maxValueLength: Int,
+    chageEvent: (String) -> Unit
 ) {
     val isFocused = remember { mutableStateOf(false) }
 
@@ -56,7 +57,10 @@ fun IdEditTextEndButton(
         BasicTextField(
             value = id,
             onValueChange = {
-                if (it.length <= maxValueLength) id = it
+                if (it.length <= maxValueLength){
+                    id = it
+                    chageEvent(it)
+                }
             },
             modifier = Modifier
                 .weight(1F)

@@ -31,7 +31,7 @@ fun MainButton(message: String, event: () -> Unit) {
                 }, indication = null
             )
             .background(AuthButtonColor, shape = RoundedCornerShape(size = 13.dp))
-            .height(50.dp),
+            .height(55.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
