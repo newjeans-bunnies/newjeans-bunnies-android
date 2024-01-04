@@ -35,14 +35,22 @@ class LoginViewModel @Inject constructor(
     val loginErrorStatus: LiveData<Boolean>
         get() = _loginErrorStatus
 
+    private val _userId = MutableLiveData("")
+    val userId: LiveData<String>
+        get() = _userId
 
-    fun login(userId: String, password: String, autoLogin: Boolean) {
+    private val _password = MutableLiveData("")
+    val password: LiveData<String>
+        get() = _password
+
+
+    fun login(autoLogin: Boolean) {
         viewModelScope.launch {
             kotlin.runCatching {
                 authRepository.login(
                     LoginReqeustDto(
-                        userId = userId,
-                        password = password
+                        userId = userId.value?:"",
+                        password = password.value?:""
                     )
                 )
             }.onSuccess {
@@ -54,8 +62,7 @@ class LoginViewModel @Inject constructor(
 //                    prefs.refreshToken = it.refreshToken
 //                _loginError.value = false
             }.onFailure { e ->
-                if (e.message == "HTTP 400")
-                    _loginErrorStatus.value = true
+                _loginErrorStatus.value = true
             }
         }
     }

@@ -63,20 +63,17 @@ fun LoginScreen(
     ) {
         AppIconImage()
         LoginIdEditText()
-        Spacer(modifier = Modifier.height(10.dp))
         LoginPasswordEditText(loginViewModel)
-        Spacer(modifier = Modifier.height(6.dp))
         LoginErrorMessage(loginViewModel)
-        AutoLoginLayout(loginViewModel)
         Spacer(modifier = Modifier.height(30.dp))
+        AutoLoginLayout(loginViewModel)
+        Spacer(modifier = Modifier.height(10.dp))
         MainButton("로그인") {
             loginViewModel.login(
-                userId,
-                password,
                 autoLogin = loginViewModel.autoLoginStatus.value ?: false
             )
         }
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         TextButton("계정 만들기", onNavigateToSignup)
     }
 }
@@ -128,13 +125,14 @@ fun LoginIdEditText() {
             .fillMaxWidth()
             .padding(6.dp)
     ) {
-        EditTextLabel("아이디")
         BasicTextField(value = userId,
             onValueChange = {
-                if (it.length <= idMaxValueLength) userId = it
+                if (it.length <= idMaxValueLength){
+                    userId = it
+                }
             },
             modifier = Modifier
-                .height(60.dp)
+                .height(65.dp)
                 .padding(top = 6.dp, start = 24.dp, end = 24.dp)
                 .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp)),
             singleLine = false,
@@ -169,13 +167,12 @@ fun LoginPasswordEditText(
             .fillMaxWidth()
             .padding(6.dp)
     ) {
-        EditTextLabel(text = "비밀번호")
         BasicTextField(value = password,
             onValueChange = {
                 if (it.length <= passwordMaxValueLength) password = it
             },
             modifier = Modifier
-                .height(60.dp)
+                .height(65.dp)
                 .padding(top = 6.dp, start = 24.dp, end = 24.dp)
                 .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp))
                 .border(0.dp, Color.Transparent), // 테두리 제거
