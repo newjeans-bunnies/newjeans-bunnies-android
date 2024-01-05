@@ -17,16 +17,16 @@ import newjeans.bunnies.designsystem.R
 @Composable
 fun CheckBox(checkStatus: Boolean, checkEvent: (Boolean) -> Unit) {
     CustomCheckbox(checked = checkStatus,
-        onPainter = painterResource(id = R.drawable.ic_check_box_true),
-        offPainter = painterResource(id = R.drawable.ic_check_box_falue),
+        onPainter = painterResource(id = R.drawable.check_box_true),
+        offPainter = painterResource(id = R.drawable.check_box_falue),
         onCheckedChange = { checkEvent(it) })
 }
 
 @Composable
 fun PasswordStatusCheckBox(checkStatus: Boolean, checkEvent: (Boolean) -> Unit) {
     CustomCheckbox(checked = checkStatus,
-        onPainter = painterResource(id = R.drawable.ic_show),
-        offPainter = painterResource(id = R.drawable.ic_hide),
+        onPainter = painterResource(id = R.drawable.ic_password_show),
+        offPainter = painterResource(id = R.drawable.ic_password_hide),
         onCheckedChange = { checkEvent(it) })
 }
 

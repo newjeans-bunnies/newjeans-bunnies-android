@@ -24,6 +24,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +36,6 @@ import androidx.compose.ui.unit.dp
 
 import newjeans.bunnies.auth.presentation.ui.AppIconImage
 import newjeans.bunnies.auth.presentation.ui.CheckBox
-import newjeans.bunnies.auth.presentation.ui.EditTextLabel
 import newjeans.bunnies.auth.presentation.ui.ErrorMessageText
 import newjeans.bunnies.auth.presentation.ui.MainButton
 import newjeans.bunnies.auth.presentation.ui.PasswordStatusCheckBox
@@ -64,10 +64,11 @@ fun LoginScreen(
         AppIconImage()
         LoginIdEditText()
         LoginPasswordEditText(loginViewModel)
+        Spacer(modifier = Modifier.height(5.dp))
         LoginErrorMessage(loginViewModel)
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         AutoLoginLayout(loginViewModel)
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(15.dp))
         MainButton("로그인") {
             loginViewModel.login(
                 autoLogin = loginViewModel.autoLoginStatus.value ?: false
@@ -93,7 +94,7 @@ fun AutoLoginLayout(loginViewModel: LoginViewModel) {
         CheckBox(autoLoginStatus ?: false) {
             loginViewModel.autoLogin(it)
         }
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(17.dp))
         Text(text = "로그인 유지하기", style = authText.bodyMedium)
     }
 }
@@ -112,8 +113,17 @@ fun LoginErrorMessage(loginViewModel: LoginViewModel) {
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {
-            ErrorMessageText("비밀번호와 아이디가 일치하지 않습니다")
+            ErrorMessageText("아이디와 비밀번호가 일치하지 않습니다")
         }
+
+        AnimatedVisibility(
+            visible = !(hidePassword ?: false),
+            enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
+            exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
+        ) {
+            Spacer(modifier = Modifier.height(30.dp))
+        }
+
     }
 }
 
@@ -149,7 +159,13 @@ fun LoginIdEditText() {
                 ) {
                     IdIconImage()
                     Spacer(modifier = Modifier.width(16.dp))
-                    innerTextField()
+                    Box {
+                        innerTextField()
+                        if (userId.isEmpty()) {
+                            Text("아이디", style = authText.bodySmall)
+                        }
+                    }
+
                 }
             })
     }
@@ -191,8 +207,13 @@ fun LoginPasswordEditText(
                 ) {
                     Spacer(modifier = Modifier.width(4.dp))
                     PasswordIconImage()
-                    Spacer(modifier = Modifier.width(20.dp))
-                    innerTextField()
+                    Spacer(modifier = Modifier.width(17.dp))
+                    Box {
+                        innerTextField()
+                        if (password.isEmpty()) {
+                            Text("비밀번호", style = authText.bodySmall)
+                        }
+                    }
                     Spacer(modifier = Modifier.weight(1f))
                     PasswordStatusCheckBox(loginViewModel.hidePassword.value ?: false) {
                         loginViewModel.hidePassword(it)

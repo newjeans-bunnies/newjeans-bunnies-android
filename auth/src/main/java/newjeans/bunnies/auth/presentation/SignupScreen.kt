@@ -116,7 +116,7 @@ fun SignupAppBar(
     Box(
         modifier = Modifier
             .height(60.dp)
-            .fillMaxSize()
+            .fillMaxSize(),
     ) {
         IconButton(
             onClick = onNavigateToLogin, modifier = Modifier
@@ -124,7 +124,7 @@ fun SignupAppBar(
                 .height(60.dp)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_back), contentDescription = ""
+                painter = painterResource(id = R.drawable.ic_arrow_back), contentDescription = "", modifier = Modifier.height(18.dp)
             )
         }
         Row(
