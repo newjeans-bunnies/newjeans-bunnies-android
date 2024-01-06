@@ -99,7 +99,7 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(30.dp))
             ConditionsOfUse(signupViewModel)
             Spacer(modifier = Modifier.height(30.dp))
-//            MainButton(event = { signup(signupViewModel, SignupReqeustDto()) }, message = "계정 만들기")
+            MainButton(event = { /*signup(signupViewModel, SignupReqeustDto())*/ }, message = "계정 만들기")
             Spacer(modifier = Modifier.height(20.dp))
         }
     }

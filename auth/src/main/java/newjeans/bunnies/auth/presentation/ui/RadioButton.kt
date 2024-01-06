@@ -46,6 +46,8 @@ fun SelectCountryRadioButton(countryOptions: List<String>) {
                             onOptionSelected(country)
                         }
                     )
+                    .padding(start = 5.dp)
+                    .padding(end = 5.dp)
                     .background(color = if (country == selectedOption) {
                         AuthRadioButtonColor // 선택된 경우의 색상
                     } else {

@@ -30,18 +30,19 @@ val authText = Typography(
         fontSize = 20.sp,
         color = Color.Black
     ),
+
     bodyMedium = TextStyle(
         fontFamily = pretendard,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp,
         color = AuthTextMainColor
     ),
 
     //edittext hint 텍스트
     bodySmall = TextStyle(
         fontFamily = pretendard,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp,
         color = AuthTextHintColor
     ),
 
@@ -58,7 +59,7 @@ val authText = Typography(
     titleSmall = TextStyle(
         fontFamily = pretendard,
         fontWeight = FontWeight.Medium,
-        fontSize = 13.sp,
+        fontSize = 14.sp,
         color = AuthTextErrorColor
     ),
 
