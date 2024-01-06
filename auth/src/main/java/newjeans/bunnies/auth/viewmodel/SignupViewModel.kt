@@ -9,8 +9,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import newjeans.bunnies.network.auth.AuthRepository
+import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
 
 import javax.inject.Inject
+
 
 @HiltViewModel
 class SignupViewModel @Inject constructor(
@@ -41,7 +43,33 @@ class SignupViewModel @Inject constructor(
     val hideCheckPassword: LiveData<Boolean>
         get() = _hideCheckPassword
 
+    //비밀번호
+    private val _password = MutableLiveData("")
+    val password: LiveData<String>
+        get() = _password
 
+    //비밀번호 확인
+    private val _checkPassword = MutableLiveData("")
+    val checkPassword: LiveData<String>
+        get() = _checkPassword
+
+    //아이디
+    private val _userId = MutableLiveData("")
+    val userId: LiveData<String>
+        get() = _userId
+
+
+    fun userId(userId: String){
+        _userId.value = userId
+    }
+
+    fun password(password: String){
+        _password.value = password
+    }
+
+    fun checkPassword(checkPassword: String){
+        _checkPassword.value = checkPassword
+    }
 
     fun useAgreementButton(status: Boolean) {
         _useAgreementButton.value = status
@@ -72,6 +100,25 @@ class SignupViewModel @Inject constructor(
 
             }.onFailure {
                 _userCheckStatus.value = false
+            }
+        }
+    }
+
+    fun signup(signupReqeustDto: SignupReqeustDto){
+        viewModelScope.launch {
+            kotlin.runCatching {
+                authRepository.signup(signupReqeustDto)
+            }.onSuccess {
+                when(it.status){
+                    201 -> {
+
+                    }
+                    else -> {
+
+                    }
+                }
+            }.onFailure {
+
             }
         }
     }
