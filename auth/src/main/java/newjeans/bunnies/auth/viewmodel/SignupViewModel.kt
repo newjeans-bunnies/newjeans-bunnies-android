@@ -58,6 +58,25 @@ class SignupViewModel @Inject constructor(
     val userId: LiveData<String>
         get() = _userId
 
+    //전화번호
+    private val _phoneNumber = MutableLiveData("")
+    val phoneNumber: LiveData<String>
+        get() = _phoneNumber
+
+    //나라
+    private val _country = MutableLiveData("")
+    val country: LiveData<String>
+        get() = _country
+
+    //언어
+    private val _language = MutableLiveData("")
+    val language: LiveData<String>
+        get() = _language
+
+    //생일
+    private val _birth = MutableLiveData("")
+    val birth: LiveData<String>
+        get() = _birth
 
     fun userId(userId: String){
         _userId.value = userId
@@ -69,6 +88,22 @@ class SignupViewModel @Inject constructor(
 
     fun checkPassword(checkPassword: String){
         _checkPassword.value = checkPassword
+    }
+
+    fun phoneNumber(phoneNumber: String){
+        _phoneNumber.value = phoneNumber
+    }
+
+    fun country(country: String){
+        _country.value = country
+    }
+
+    fun language(language: String){
+        _language.value = language
+    }
+
+    fun birth(birth: String){
+        _birth.value = birth.toString()
     }
 
     fun useAgreementButton(status: Boolean) {
@@ -104,10 +139,17 @@ class SignupViewModel @Inject constructor(
         }
     }
 
-    fun signup(signupReqeustDto: SignupReqeustDto){
+    fun signup(){
         viewModelScope.launch {
             kotlin.runCatching {
-                authRepository.signup(signupReqeustDto)
+                authRepository.signup(SignupReqeustDto(
+                    userId = userId.value?:"",
+                    password = password.value?:"",
+                    phoneNumber = phoneNumber.value?:"",
+                    country = country.value?:"",
+                    language = language.value?:"",
+                    birth = birth.value?:""
+                    ))
             }.onSuccess {
                 when(it.status){
                     201 -> {
