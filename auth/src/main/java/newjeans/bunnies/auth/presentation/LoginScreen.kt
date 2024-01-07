@@ -50,9 +50,6 @@ import newjeans.bunnies.designsystem.theme.authText
 private var userId by mutableStateOf("")
 private var password by mutableStateOf("")
 
-const val passwordMaxValueLength = 30
-const val idMaxValueLength = 10
-
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
@@ -137,9 +134,7 @@ fun LoginIdEditText() {
     ) {
         BasicTextField(value = userId,
             onValueChange = {
-                if (it.length <= idMaxValueLength){
-                    userId = it
-                }
+                userId = it
             },
             modifier = Modifier
                 .height(65.dp)
@@ -185,7 +180,7 @@ fun LoginPasswordEditText(
     ) {
         BasicTextField(value = password,
             onValueChange = {
-                if (it.length <= passwordMaxValueLength) password = it
+                password = it
             },
             modifier = Modifier
                 .height(65.dp)
