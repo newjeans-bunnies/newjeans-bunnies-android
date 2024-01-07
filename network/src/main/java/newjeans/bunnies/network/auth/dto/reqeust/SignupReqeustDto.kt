@@ -6,5 +6,5 @@ data class SignupReqeustDto(
     val phoneNumber: String,
     val country: String,
     val language: String,
-    val birth:String
+    val birth: String
 )

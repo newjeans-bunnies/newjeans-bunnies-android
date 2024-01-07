@@ -26,8 +26,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
-import newjeans.bunnies.auth.presentation.passwordMaxValueLength
 import newjeans.bunnies.designsystem.theme.AuthEditTextColor
+import newjeans.bunnies.designsystem.theme.TextRule.passwordMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.authText
 
 
@@ -46,7 +46,7 @@ fun PasswordEditText(
 
     BasicTextField(value = password,
         onValueChange = {
-            if (it.length <= passwordMaxValueLength) {
+            if (it.length <= passwordMaxCharacterCount) {
                 password = it
             }
         },
@@ -93,7 +93,7 @@ fun CheckPasswordEditText(
 
     BasicTextField(value = checkPassword,
         onValueChange = {
-            if (it.length <= passwordMaxValueLength) {
+            if (it.length <= passwordMaxCharacterCount) {
                 checkPassword = it
             }
         },
