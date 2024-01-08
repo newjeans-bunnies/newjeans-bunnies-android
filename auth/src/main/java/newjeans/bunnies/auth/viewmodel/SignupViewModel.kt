@@ -29,10 +29,14 @@ class SignupViewModel @Inject constructor(
     val informationConsentStatus: LiveData<Boolean>
         get() = _informationConsentButton
 
+
+
     //유저 아이디 중복 체크
     private val _userCheckStatus = MutableLiveData<Boolean>()
     val userCheckStatus: LiveData<Boolean>
         get() = _userCheckStatus
+
+    //유저
 
     //비밀번호 숨기기
     private val _hidePassword = MutableLiveData(false)
@@ -103,7 +107,7 @@ class SignupViewModel @Inject constructor(
     }
 
     fun birth(birth: String){
-        _birth.value = birth.toString()
+        _birth.value = birth
     }
 
     fun useAgreementButton(status: Boolean) {

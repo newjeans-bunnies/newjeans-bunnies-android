@@ -62,7 +62,7 @@ fun LoginScreen(
         LoginIdEditText()
         LoginPasswordEditText(loginViewModel)
         Spacer(modifier = Modifier.height(5.dp))
-        LoginErrorMessage(loginViewModel)
+        ErrorMessage(loginViewModel)
         Spacer(modifier = Modifier.height(20.dp))
         AutoLoginLayout(loginViewModel)
         Spacer(modifier = Modifier.height(15.dp))
@@ -97,7 +97,7 @@ fun AutoLoginLayout(loginViewModel: LoginViewModel) {
 }
 
 @Composable
-fun LoginErrorMessage(loginViewModel: LoginViewModel) {
+fun ErrorMessage(loginViewModel: LoginViewModel) {
     val hidePassword by loginViewModel.loginErrorStatus.observeAsState()
 
     Row(

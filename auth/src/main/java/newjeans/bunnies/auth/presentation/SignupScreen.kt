@@ -3,7 +3,6 @@ package newjeans.bunnies.auth.presentation
 
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -37,10 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 import newjeans.bunnies.auth.presentation.ui.CertificationNumberEditTextEndButton
@@ -74,6 +70,8 @@ fun SignupScreen(
     val userId by signupViewModel.userId.observeAsState()
     val brith by signupViewModel.birth.observeAsState()
 
+    val userIdErrorStatus by signupViewModel.userCheckStatus.observeAsState()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -90,7 +88,7 @@ fun SignupScreen(
             }, buttonText = "중복확인", maxValueLength = 10, chageEvent = {
                 signupViewModel.userId(it)
             })
-            LoginErrorMessage(signupViewModel)
+            ErrorMessage(userIdErrorStatus, "이미 존재 하는 아이디 입니다")
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "비밀번호")
             Spacer(modifier = Modifier.height(10.dp))
@@ -232,8 +230,7 @@ fun ConditionsOfUse(
 
 
 @Composable
-fun LoginErrorMessage(signupViewModel: SignupViewModel) {
-    val userCheckStatus by signupViewModel.userCheckStatus.observeAsState()
+fun ErrorMessage(errorStatus: Boolean?, message: String) {
 
     Row(
         modifier = Modifier
@@ -241,11 +238,11 @@ fun LoginErrorMessage(signupViewModel: SignupViewModel) {
             .fillMaxWidth(),
     ) {
         AnimatedVisibility(
-            visible = (userCheckStatus == false),
+            visible = (errorStatus == false),
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {
-            ErrorMessageText("이미 존재하는 아이디 입니다")
+            ErrorMessageText(message)
         }
     }
 }
