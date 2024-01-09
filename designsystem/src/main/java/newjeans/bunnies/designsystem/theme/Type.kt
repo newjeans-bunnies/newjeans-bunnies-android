@@ -62,6 +62,12 @@ val authText = Typography(
         fontSize = 14.sp,
         color = AuthTextErrorColor
     ),
+    labelSmall = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        color = AuthTextCheckColor
+    ),
 
     labelMedium = TextStyle(
         fontFamily = pretendard,

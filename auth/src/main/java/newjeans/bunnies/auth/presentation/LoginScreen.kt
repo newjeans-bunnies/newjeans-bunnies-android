@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 
 import newjeans.bunnies.auth.presentation.ui.AppIconImage
 import newjeans.bunnies.auth.presentation.ui.CheckBox
-import newjeans.bunnies.auth.presentation.ui.ErrorMessageText
+import newjeans.bunnies.auth.presentation.ui.StatusMessageText
 import newjeans.bunnies.auth.presentation.ui.MainButton
 import newjeans.bunnies.auth.presentation.ui.PasswordStatusCheckBox
 import newjeans.bunnies.auth.presentation.ui.TextButton
@@ -62,7 +62,7 @@ fun LoginScreen(
         LoginIdEditText()
         LoginPasswordEditText(loginViewModel)
         Spacer(modifier = Modifier.height(5.dp))
-        ErrorMessage(loginViewModel)
+        StatusMessage(loginViewModel)
         Spacer(modifier = Modifier.height(20.dp))
         AutoLoginLayout(loginViewModel)
         Spacer(modifier = Modifier.height(15.dp))
@@ -97,7 +97,7 @@ fun AutoLoginLayout(loginViewModel: LoginViewModel) {
 }
 
 @Composable
-fun ErrorMessage(loginViewModel: LoginViewModel) {
+fun StatusMessage(loginViewModel: LoginViewModel) {
     val hidePassword by loginViewModel.loginErrorStatus.observeAsState()
 
     Row(
@@ -110,7 +110,7 @@ fun ErrorMessage(loginViewModel: LoginViewModel) {
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {
-            ErrorMessageText("아이디와 비밀번호가 일치하지 않습니다")
+            StatusMessageText("아이디와 비밀번호가 일치하지 않습니다", true)
         }
 
         AnimatedVisibility(

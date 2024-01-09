@@ -44,7 +44,7 @@ import newjeans.bunnies.auth.presentation.ui.CheckBox
 import newjeans.bunnies.auth.presentation.ui.CheckPasswordEditText
 import newjeans.bunnies.auth.presentation.ui.IdEditTextEndButton
 import newjeans.bunnies.auth.presentation.ui.EditTextLabel
-import newjeans.bunnies.auth.presentation.ui.ErrorMessageText
+import newjeans.bunnies.auth.presentation.ui.StatusMessageText
 import newjeans.bunnies.auth.presentation.ui.MainButton
 import newjeans.bunnies.auth.presentation.ui.PasswordEditText
 import newjeans.bunnies.auth.presentation.ui.PhoneNumberEditTextEndButton
@@ -88,7 +88,7 @@ fun SignupScreen(
             }, buttonText = "중복확인", maxValueLength = 10, chageEvent = {
                 signupViewModel.userId(it)
             })
-            ErrorMessage(userIdErrorStatus, "이미 존재 하는 아이디 입니다")
+            StatusMessage(userIdErrorStatus, "이미 존재 하는 아이디 입니다", true)
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "비밀번호")
             Spacer(modifier = Modifier.height(10.dp))
@@ -230,19 +230,20 @@ fun ConditionsOfUse(
 
 
 @Composable
-fun ErrorMessage(errorStatus: Boolean?, message: String) {
+fun StatusMessage(status: Boolean?, message: String, errorStatus: Boolean) {
 
     Row(
         modifier = Modifier
-            .padding(start = 40.dp)
+            .padding(start = 40.dp, top = 5.dp)
+            .height(20.dp)
             .fillMaxWidth(),
     ) {
         AnimatedVisibility(
-            visible = (errorStatus == false),
+            visible = (status == false),
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {
-            ErrorMessageText(message)
+            StatusMessageText(message, errorStatus)
         }
     }
 }
