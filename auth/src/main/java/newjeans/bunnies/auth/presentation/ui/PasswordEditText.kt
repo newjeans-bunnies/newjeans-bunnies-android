@@ -4,11 +4,13 @@ package newjeans.bunnies.auth.presentation.ui
 import android.util.Log
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -31,32 +33,34 @@ import newjeans.bunnies.designsystem.theme.TextRule.passwordMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.authText
 
 
-private var password by mutableStateOf("")
 private var checkPassword by mutableStateOf("")
+private var password by mutableStateOf("")
 
 
 @Composable
 fun PasswordEditText(
     hint: String,
     checkStatus: Boolean,
-    checkEvent: (Boolean) -> Unit
+    checkEvent: (Boolean) -> Unit,
+    passwordOnValueChange: (String) -> Unit
 ) {
     val isFocused = remember { mutableStateOf(false) }
-
 
     BasicTextField(value = password,
         onValueChange = {
             if (it.length <= passwordMaxCharacterCount) {
                 password = it
+                passwordOnValueChange(it)
             }
         },
         modifier = Modifier
             .height(50.dp)
+            .fillMaxWidth()
             .padding(start = 30.dp, end = 30.dp)
-            .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp))
             .onFocusChanged {
                 isFocused.value = it.isFocused
-            },
+            }
+            .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp)),
         visualTransformation = if (checkStatus) VisualTransformation.None
         else PasswordVisualTransformation(),
 
@@ -75,7 +79,6 @@ fun PasswordEditText(
                 innerTextField()
                 Spacer(modifier = Modifier.weight(1f))
                 PasswordStatusCheckBox(checkStatus) {
-                    Log.d("클릭", it.toString())
                     checkEvent(it)
                 }
             }
