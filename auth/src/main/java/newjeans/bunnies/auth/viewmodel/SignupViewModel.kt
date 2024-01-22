@@ -20,30 +20,34 @@ class SignupViewModel @Inject constructor(
 ) : ViewModel() {
 
     //이용약관 동의
-    private val _useAgreementButton = MutableLiveData(false)
+    private val _useAgreementButton = MutableLiveData<Boolean>()
     val useAgreementStatus: LiveData<Boolean>
         get() = _useAgreementButton
 
     //개인정보 동의
-    private val _informationConsentButton = MutableLiveData(false)
+    private val _informationConsentButton = MutableLiveData<Boolean>()
     val informationConsentStatus: LiveData<Boolean>
         get() = _informationConsentButton
 
 
 
     //유저 아이디 중복 체크
-    private val _userCheckStatus = MutableLiveData<Boolean>()
-    val userCheckStatus: LiveData<Boolean>
-        get() = _userCheckStatus
+    private val _userIdCheckStatus = MutableLiveData<Boolean>()
+    val userIdCheckStatus: LiveData<Boolean>
+        get() = _userIdCheckStatus
 
-    //유저
+    //비밀번호 중복 체크
+    private val _passwordCheckStatus = MutableLiveData<Boolean>()
+    val passwordCheckStatus: LiveData<Boolean>
+        get() = _passwordCheckStatus
+
 
     //비밀번호 숨기기
-    private val _hidePassword = MutableLiveData(false)
+    private val _hidePassword = MutableLiveData<Boolean>()
     val hidePassword: LiveData<Boolean>
         get() = _hidePassword
 
-    private val _hideCheckPassword = MutableLiveData(false)
+    private val _hideCheckPassword = MutableLiveData<Boolean>()
     val hideCheckPassword: LiveData<Boolean>
         get() = _hideCheckPassword
 
@@ -133,12 +137,12 @@ class SignupViewModel @Inject constructor(
                 authRepository.checkUser(userId)
             }.onSuccess {
                 when (it.status) {
-                    200 -> _userCheckStatus.value = true
-                    else -> _userCheckStatus.value = false
+                    200 -> _userIdCheckStatus.value = true
+                    else -> _userIdCheckStatus.value = false
                 }
 
             }.onFailure {
-                _userCheckStatus.value = false
+                _userIdCheckStatus.value = false
             }
         }
     }
