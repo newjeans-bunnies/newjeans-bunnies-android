@@ -89,7 +89,9 @@ fun PasswordEditText(
 fun CheckPasswordEditText(
     hint: String,
     checkStatus: Boolean,
-    checkEvent: (Boolean) -> Unit
+    checkEvent: (Boolean) -> Unit,
+    passwordOnValueChange: (String) -> Unit
+
 ) {
     val isFocused = remember { mutableStateOf(false) }
 
@@ -98,6 +100,7 @@ fun CheckPasswordEditText(
         onValueChange = {
             if (it.length <= passwordMaxCharacterCount) {
                 checkPassword = it
+                passwordOnValueChange(it)
             }
         },
         modifier = Modifier

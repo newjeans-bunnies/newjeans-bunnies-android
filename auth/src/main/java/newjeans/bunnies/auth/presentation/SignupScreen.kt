@@ -56,17 +56,18 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun SignupScreen(
-    signupViewModel: SignupViewModel, onNavigateToLogin: () -> Unit
+    viewModel: SignupViewModel, onNavigateToLogin: () -> Unit
 ) {
-    val hidePassword by signupViewModel.hidePassword.observeAsState()
-    val hideCheckPassword by signupViewModel.hideCheckPassword.observeAsState()
-    val password by signupViewModel.password.observeAsState()
-    val checkPassword by signupViewModel.checkPassword.observeAsState()
-    val userId by signupViewModel.userId.observeAsState()
-    val brith by signupViewModel.birth.observeAsState()
+    val hidePassword by viewModel.hidePassword.observeAsState()
+    val hideCheckPassword by viewModel.hideCheckPassword.observeAsState()
+    val password by viewModel.password.observeAsState()
+    val checkPassword by viewModel.checkPassword.observeAsState()
+    val userId by viewModel.userId.observeAsState()
+    val checkUserId by viewModel.checkUserId.observeAsState()
+    val brith by viewModel.birth.observeAsState()
 
-    val userIdErrorStatus by signupViewModel.userIdCheckStatus.observeAsState()
-    val passwordErrorStatus by signupViewModel.passwordCheckStatus.observeAsState()
+    val userIdErrorStatus by viewModel.userIdCheckStatus.observeAsState()
+    val passwordErrorStatus by viewModel.passwordCheckStatus.observeAsState()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -80,27 +81,42 @@ fun SignupScreen(
             EditTextLabel(text = "아이디")
             Spacer(modifier = Modifier.height(10.dp))
             IdEditTextEndButton(hint = "아이디", event = { userId ->
-                if (userId.isNotBlank()) signupViewModel.checkUser(userId)
+                if (userId.isNotBlank()) viewModel.checkUser(userId)
             }, buttonText = "중복확인", maxValueLength = 10, chageEvent = {
-                signupViewModel.userId(it)
+                viewModel.userId(it)
             })
-            if (userIdErrorStatus == false) {
+            if (userIdErrorStatus == false && checkUserId == userId) {
                 StatusMessage("이미 존재 하는 아이디 입니다", true)
-            } else if (userIdErrorStatus == true) {
+            } else if (userIdErrorStatus == true && checkUserId == userId) {
                 StatusMessage("사용가능한 아이디 입니다", false)
+            } else {
+                viewModel.userIdCheckStatus(null)
             }
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "비밀번호")
             Spacer(modifier = Modifier.height(10.dp))
             PasswordEditText(hint = "비밀번호", hidePassword ?: false, passwordOnValueChange = {
-                signupViewModel.password(it)
-                Log.d("비밀번호",it)
+                viewModel.password(it)
+                Log.d("비밀번호", it)
             }, checkEvent = {
-                signupViewModel.hidePassword(it)
+                viewModel.hidePassword(it)
             })
             Spacer(modifier = Modifier.height(10.dp))
-            CheckPasswordEditText(hint = "비밀번호 확인", hideCheckPassword ?: false) {
-                signupViewModel.hideCheckPassword(it)
+            CheckPasswordEditText(hint = "비밀번호 확인",
+                hideCheckPassword ?: false,
+                passwordOnValueChange = {
+                    viewModel.checkPassword(it)
+                },
+                checkEvent = {
+                    viewModel.hideCheckPassword(it)
+                })
+
+            if (password != checkPassword && !password.isNullOrEmpty() && !checkPassword.isNullOrEmpty()) {
+                StatusMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.", true)
+                viewModel.passwordCheckStatus(false)
+            } else if(password == checkPassword && !password.isNullOrEmpty() && !checkPassword.isNullOrEmpty()){
+                StatusMessage("사용가능한 비밀번호입니다.", false)
+                viewModel.passwordCheckStatus(true)
             }
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "전화번호")
@@ -119,11 +135,11 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "생년월일")
             Spacer(modifier = Modifier.height(10.dp))
-            SelectBirth(brith, signupViewModel)
+            SelectBirth(brith, viewModel)
             Spacer(modifier = Modifier.height(30.dp))
-            ConditionsOfUse(signupViewModel)
+            ConditionsOfUse(viewModel)
             Spacer(modifier = Modifier.height(30.dp))
-            MainButton(event = { signup(signupViewModel) }, message = "계정 만들기")
+            MainButton(event = { signup(viewModel) }, message = "계정 만들기")
             Spacer(modifier = Modifier.height(20.dp))
         }
     }
@@ -234,7 +250,6 @@ fun ConditionsOfUse(
 
 @Composable
 fun StatusMessage(message: String, errorStatus: Boolean) {
-
     Row(
         modifier = Modifier
             .padding(start = 40.dp, top = 5.dp)

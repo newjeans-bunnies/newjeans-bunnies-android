@@ -30,7 +30,6 @@ class SignupViewModel @Inject constructor(
         get() = _informationConsentButton
 
 
-
     //유저 아이디 중복 체크
     private val _userIdCheckStatus = MutableLiveData<Boolean>()
     val userIdCheckStatus: LiveData<Boolean>
@@ -66,6 +65,11 @@ class SignupViewModel @Inject constructor(
     val userId: LiveData<String>
         get() = _userId
 
+    //아이디
+    private val _checkUserId = MutableLiveData("")
+    val checkUserId: LiveData<String>
+        get() = _checkUserId
+
     //전화번호
     private val _phoneNumber = MutableLiveData("")
     val phoneNumber: LiveData<String>
@@ -88,6 +92,10 @@ class SignupViewModel @Inject constructor(
 
     fun userId(userId: String){
         _userId.value = userId
+    }
+
+    private fun checkUserId(checkUserId: String){
+        _checkUserId.value = checkUserId
     }
 
     fun password(password: String){
@@ -130,6 +138,14 @@ class SignupViewModel @Inject constructor(
         _hideCheckPassword.value = status
     }
 
+    fun userIdCheckStatus(status: Boolean?){
+        _userIdCheckStatus.value = status
+    }
+
+    fun passwordCheckStatus(status: Boolean?){
+        _passwordCheckStatus.value = status
+    }
+
 
     fun checkUser(userId: String) {
         viewModelScope.launch {
@@ -137,12 +153,19 @@ class SignupViewModel @Inject constructor(
                 authRepository.checkUser(userId)
             }.onSuccess {
                 when (it.status) {
-                    200 -> _userIdCheckStatus.value = true
-                    else -> _userIdCheckStatus.value = false
+                    200 -> {
+                        _userIdCheckStatus.value = true
+                        checkUserId(userId)
+                    }
+                    else -> {
+                        _userIdCheckStatus.value = false
+                        checkUserId(userId)
+                    }
                 }
 
             }.onFailure {
                 _userIdCheckStatus.value = false
+                checkUserId(userId)
             }
         }
     }
