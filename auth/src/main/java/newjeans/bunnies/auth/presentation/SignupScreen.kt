@@ -3,11 +3,6 @@ package newjeans.bunnies.auth.presentation
 
 import android.os.Build
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,7 +65,8 @@ fun SignupScreen(
     val userId by signupViewModel.userId.observeAsState()
     val brith by signupViewModel.birth.observeAsState()
 
-    val userIdErrorStatus by signupViewModel.userCheckStatus.observeAsState()
+    val userIdErrorStatus by signupViewModel.userIdCheckStatus.observeAsState()
+    val passwordErrorStatus by signupViewModel.passwordCheckStatus.observeAsState()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -88,13 +84,20 @@ fun SignupScreen(
             }, buttonText = "중복확인", maxValueLength = 10, chageEvent = {
                 signupViewModel.userId(it)
             })
-            StatusMessage(userIdErrorStatus, "이미 존재 하는 아이디 입니다", true)
+            if (userIdErrorStatus == false) {
+                StatusMessage("이미 존재 하는 아이디 입니다", true)
+            } else if (userIdErrorStatus == true) {
+                StatusMessage("사용가능한 아이디 입니다", false)
+            }
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "비밀번호")
             Spacer(modifier = Modifier.height(10.dp))
-            PasswordEditText(hint = "비밀번호", hidePassword ?: false) {
+            PasswordEditText(hint = "비밀번호", hidePassword ?: false, passwordOnValueChange = {
+                signupViewModel.password(it)
+                Log.d("비밀번호",it)
+            }, checkEvent = {
                 signupViewModel.hidePassword(it)
-            }
+            })
             Spacer(modifier = Modifier.height(10.dp))
             CheckPasswordEditText(hint = "비밀번호 확인", hideCheckPassword ?: false) {
                 signupViewModel.hideCheckPassword(it)
@@ -230,21 +233,14 @@ fun ConditionsOfUse(
 
 
 @Composable
-fun StatusMessage(status: Boolean?, message: String, errorStatus: Boolean) {
+fun StatusMessage(message: String, errorStatus: Boolean) {
 
     Row(
         modifier = Modifier
             .padding(start = 40.dp, top = 5.dp)
-            .height(20.dp)
             .fillMaxWidth(),
     ) {
-        AnimatedVisibility(
-            visible = (status == false),
-            enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
-            exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
-        ) {
-            StatusMessageText(message, errorStatus)
-        }
+        StatusMessageText(message, errorStatus)
     }
 }
 
@@ -298,7 +294,7 @@ fun formatStringDate(inputDate: String): String {
 
             SimpleDateFormat("yyyy-MM-dd").format(date)
         }
-    } catch (e: Exception){
+    } catch (e: Exception) {
         Log.d("애러", e.message.toString())
         inputDate
     }
