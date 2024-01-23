@@ -10,6 +10,6 @@ interface AuthRepository {
     suspend fun login(loginRequestDto: LoginReqeustDto): LoginResponseDto
     suspend fun signup(signupRequestDto: SignupReqeustDto): SignupResponseDto
     suspend fun refresh(token: String)
-
-    suspend fun checkUser(userId: String): StatusResponseDto
+    suspend fun checkUserId(userId: String): StatusResponseDto
+    suspend fun checkPhoneNumber(phoneNumber: String): StatusResponseDto
 }

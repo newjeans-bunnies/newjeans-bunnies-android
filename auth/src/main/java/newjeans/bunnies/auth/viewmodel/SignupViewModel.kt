@@ -170,7 +170,27 @@ class SignupViewModel @Inject constructor(
         }
     }
 
-    fun signup(){
+    fun checkPhoneNumber(phoneNumber: String) {
+        viewModelScope.launch {
+            kotlin.runCatching {
+                authRepository.checkPhoneNumber(phoneNumber)
+            }.onSuccess {
+                when (it.status) {
+                    200 -> {
+                        _phoneNumberCheckStatus.value = true
+                    }
+
+                    else -> {
+                        _phoneNumberCheckStatus.value = false
+                    }
+                }
+            }.onFailure {
+                _phoneNumberCheckStatus.value = false
+            }
+        }
+    }
+
+    fun signup() {
         viewModelScope.launch {
             kotlin.runCatching {
                 authRepository.signup(SignupReqeustDto(

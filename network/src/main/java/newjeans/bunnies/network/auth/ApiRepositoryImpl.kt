@@ -25,7 +25,13 @@ class ApiRepositoryImpl @Inject constructor(
         return authApi.refresh(token)
     }
 
-    override suspend fun checkUser(userId: String): StatusResponseDto {
-        return authApi.checkUser(userId)
+    override suspend fun checkUserId(userId: String): StatusResponseDto {
+        return authApi.checkUserID(userId)
     }
+
+    override suspend fun checkPhoneNumber(phoneNumber: String): StatusResponseDto {
+        return authApi.checkPhoneNumber(phoneNumber)
+    }
+
+
 }
