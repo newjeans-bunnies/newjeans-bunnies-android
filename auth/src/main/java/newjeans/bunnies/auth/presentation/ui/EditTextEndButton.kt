@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import newjeans.bunnies.auth.utils.PhoneVisualTransformation
 
 import newjeans.bunnies.designsystem.theme.AuthButtonColor
 import newjeans.bunnies.designsystem.theme.AuthEditTextColor
@@ -117,7 +118,6 @@ fun PhoneNumberEditTextEndButton(
     maxValueLength: Int,
 ) {
     val isFocused = remember { mutableStateOf(false) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -136,7 +136,7 @@ fun PhoneNumberEditTextEndButton(
                 .onFocusChanged {
                     isFocused.value = it.isFocused
                 },
-            visualTransformation = VisualTransformation.None,
+            visualTransformation = PhoneVisualTransformation("000-0000-0000", '0'),
             textStyle = authText.bodyMedium,
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -175,7 +175,6 @@ fun PhoneNumberEditTextEndButton(
         }
     }
 }
-
 
 @Composable
 fun CertificationNumberEditTextEndButton(

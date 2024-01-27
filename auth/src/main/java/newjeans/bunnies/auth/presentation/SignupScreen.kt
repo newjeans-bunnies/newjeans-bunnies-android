@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+
 import newjeans.bunnies.auth.presentation.ui.CertificationNumberEditTextEndButton
 import newjeans.bunnies.auth.presentation.ui.CheckBox
 import newjeans.bunnies.auth.presentation.ui.CheckPasswordEditText
@@ -48,6 +49,8 @@ import newjeans.bunnies.auth.viewmodel.SignupViewModel
 import newjeans.bunnies.designsystem.R
 import newjeans.bunnies.designsystem.theme.AuthEditTextColor
 import newjeans.bunnies.designsystem.theme.TextRule.birthMaxCharacterCount
+import newjeans.bunnies.designsystem.theme.TextRule.certificationNumberMaxCharacterCount
+import newjeans.bunnies.designsystem.theme.TextRule.phoneNumberMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.authText
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -111,22 +114,27 @@ fun SignupScreen(
                     viewModel.hideCheckPassword(it)
                 })
 
-            if (password != checkPassword && !password.isNullOrEmpty() && !checkPassword.isNullOrEmpty()) {
-                StatusMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.", true)
-                viewModel.passwordCheckStatus(false)
-            } else if(password == checkPassword && !password.isNullOrEmpty() && !checkPassword.isNullOrEmpty()){
-                StatusMessage("사용가능한 비밀번호입니다.", false)
-                viewModel.passwordCheckStatus(true)
+            if(checkPasswordPattern(password?:"")){
+                if (password != checkPassword && !password.isNullOrEmpty() && !checkPassword.isNullOrEmpty()) {
+                    StatusMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.", true)
+                    viewModel.passwordCheckStatus(false)
+                } else if(password == checkPassword && !password.isNullOrEmpty() && !checkPassword.isNullOrEmpty()){
+                    StatusMessage("사용가능한 비밀번호입니다.", false)
+                    viewModel.passwordCheckStatus(true)
+                }
+            } else if(!checkPasswordPattern(password?:"") && !password.isNullOrBlank()){
+                StatusMessage("비밀번호는 대소문자, 특수문자, 숫자 포함 최소 10글자입니다.", true)
             }
+
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "전화번호")
             Spacer(modifier = Modifier.height(10.dp))
             PhoneNumberEditTextEndButton(
-                hint = "전화번호", event = {}, buttonText = "인증번호 받기", maxValueLength = 11
+                hint = "전화번호", event = {}, buttonText = "인증번호 받기", maxValueLength = phoneNumberMaxCharacterCount
             )
             Spacer(modifier = Modifier.height(10.dp))
             CertificationNumberEditTextEndButton(
-                hint = "인증번호", event = {}, buttonText = "확인", maxValueLength = 6
+                hint = "인증번호", event = {}, buttonText = "확인", maxValueLength = certificationNumberMaxCharacterCount
             )
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "나라")
@@ -313,4 +321,11 @@ fun formatStringDate(inputDate: String): String {
         Log.d("애러", e.message.toString())
         inputDate
     }
+}
+
+val passwordPattern = Regex("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~․!@#\$%^&*()_\\-+=|\\\\;:‘“<>,.?/]).{10,20}\$")
+
+
+fun checkPasswordPattern(input: String): Boolean {
+    return passwordPattern.matches(input)
 }
