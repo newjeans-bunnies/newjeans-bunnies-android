@@ -44,7 +44,7 @@ class AuthActivity : ComponentActivity() {
                 }
                 composable(NavigationRoute.signupRoute) {
                     SignupScreen(
-                        signupViewModel = signupViewModel,
+                        viewModel = signupViewModel,
                         onNavigateToLogin = { navController.navigate(NavigationRoute.loginRoute) }
                     )
                 }
@@ -60,4 +60,5 @@ class AuthActivity : ComponentActivity() {
         applyOverrideConfiguration(override)
         super.attachBaseContext(newBase)
     }
+
 }

@@ -5,7 +5,7 @@ import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
 import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
 import newjeans.bunnies.network.auth.dto.response.LoginResponseDto
 import newjeans.bunnies.network.auth.dto.response.SignupResponseDto
-import newjeans.bunnies.network.global.response.StatusResponseDto
+import newjeans.bunnies.network.global.dto.response.StatusResponseDto
 
 import javax.inject.Inject
 

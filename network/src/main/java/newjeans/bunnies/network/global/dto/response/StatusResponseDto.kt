@@ -1,4 +1,4 @@
-package newjeans.bunnies.network.global.response
+package newjeans.bunnies.network.global.dto.response
 
 data class StatusResponseDto(
     val status: Int,
