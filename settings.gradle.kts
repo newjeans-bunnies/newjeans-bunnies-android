@@ -21,5 +21,6 @@ include(
     ":auth",
     ":database",
     ":di",
-    ":network"
+    ":network",
 )
+include(":main")
