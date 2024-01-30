@@ -1,8 +1,8 @@
 package newjeans.bunnies.auth.presentation
 
 
-import android.os.Build
 import android.util.Log
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -34,6 +35,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+import com.google.firebase.FirebaseException
+import com.google.firebase.FirebaseTooManyRequestsException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import newjeans.bunnies.auth.AuthActivity
 
 import newjeans.bunnies.auth.presentation.ui.CertificationNumberEditTextEndButton
 import newjeans.bunnies.auth.presentation.ui.CheckBox
@@ -45,6 +57,7 @@ import newjeans.bunnies.auth.presentation.ui.MainButton
 import newjeans.bunnies.auth.presentation.ui.PasswordEditText
 import newjeans.bunnies.auth.presentation.ui.PhoneNumberEditTextEndButton
 import newjeans.bunnies.auth.presentation.ui.SelectCountryRadioButton
+import newjeans.bunnies.auth.utils.MaskNumberVisualTransformation
 import newjeans.bunnies.auth.viewmodel.SignupViewModel
 import newjeans.bunnies.designsystem.R
 import newjeans.bunnies.designsystem.theme.AuthEditTextColor
@@ -52,14 +65,17 @@ import newjeans.bunnies.designsystem.theme.TextRule.birthMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.TextRule.certificationNumberMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.TextRule.phoneNumberMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.authText
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+
+import java.util.concurrent.TimeUnit
+
+private lateinit var checkId: String
+
+private var certificationStatus by mutableStateOf(false)
 
 
 @Composable
 fun SignupScreen(
-    viewModel: SignupViewModel, onNavigateToLogin: () -> Unit
+    viewModel: SignupViewModel, onNavigateToLogin: () -> Unit, activity: AuthActivity
 ) {
     val hidePassword by viewModel.hidePassword.observeAsState()
     val hideCheckPassword by viewModel.hideCheckPassword.observeAsState()
@@ -71,6 +87,9 @@ fun SignupScreen(
 
     val userIdErrorStatus by viewModel.userIdCheckStatus.observeAsState()
     val passwordErrorStatus by viewModel.passwordCheckStatus.observeAsState()
+
+    val auth: FirebaseAuth = Firebase.auth
+    auth.setLanguageCode("kr")
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -114,15 +133,15 @@ fun SignupScreen(
                     viewModel.hideCheckPassword(it)
                 })
 
-            if(checkPasswordPattern(password?:"")){
+            if (checkPasswordPattern(password ?: "")) {
                 if (password != checkPassword && !password.isNullOrEmpty() && !checkPassword.isNullOrEmpty()) {
                     StatusMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.", true)
                     viewModel.passwordCheckStatus(false)
-                } else if(password == checkPassword && !password.isNullOrEmpty() && !checkPassword.isNullOrEmpty()){
+                } else if (password == checkPassword && !password.isNullOrEmpty() && !checkPassword.isNullOrEmpty()) {
                     StatusMessage("사용가능한 비밀번호입니다.", false)
                     viewModel.passwordCheckStatus(true)
                 }
-            } else if(!checkPasswordPattern(password?:"") && !password.isNullOrBlank()){
+            } else if (!checkPasswordPattern(password ?: "") && !password.isNullOrBlank()) {
                 StatusMessage("비밀번호는 대소문자, 특수문자, 숫자 포함 최소 10글자입니다.", true)
             }
 
@@ -130,11 +149,17 @@ fun SignupScreen(
             EditTextLabel(text = "전화번호")
             Spacer(modifier = Modifier.height(10.dp))
             PhoneNumberEditTextEndButton(
-                hint = "전화번호", event = {}, buttonText = "인증번호 받기", maxValueLength = phoneNumberMaxCharacterCount
+                hint = "전화번호", event = {
+                    sendVeriftNumber(activity, countryPhoneNumber(it), auth)
+                }, buttonText = "인증번호 받기", maxValueLength = phoneNumberMaxCharacterCount
             )
             Spacer(modifier = Modifier.height(10.dp))
             CertificationNumberEditTextEndButton(
-                hint = "인증번호", event = {}, buttonText = "확인", maxValueLength = certificationNumberMaxCharacterCount
+                hint = "인증번호", event = {
+                    if (certificationStatus) numberCertification(
+                        number = it, verificationId = checkId, auth = auth, activity = activity
+                    )
+                }, buttonText = "확인", maxValueLength = certificationNumberMaxCharacterCount
             )
             Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "나라")
@@ -154,6 +179,73 @@ fun SignupScreen(
 
 }
 
+fun countryPhoneNumber(phoneNumber: String): String {
+    var phoneEdit = phoneNumber.substring(3)
+    phoneEdit = "+8210$phoneEdit"
+    return phoneEdit
+}
+
+private fun numberCertification(
+    number: String, auth: FirebaseAuth, activity: AuthActivity, verificationId: String
+) {
+    val credential = PhoneAuthProvider.getCredential(verificationId, number)
+    signInWithPhoneAuthCredential(credential, auth, activity)
+}
+
+private fun sendVeriftNumber(context: AuthActivity, phoneNumber: String, auth: FirebaseAuth) {
+    auth.setLanguageCode("kr")
+    val options =
+        PhoneAuthOptions.newBuilder(auth).setPhoneNumber(phoneNumber) // Phone number to verify
+            .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+            .setActivity(context) // Activity (for callback binding)
+            .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
+            .build()
+    PhoneAuthProvider.verifyPhoneNumber(options)
+}
+
+val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+    override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+        certificationStatus = false
+
+        Log.d("onVerificationCompleted", "onVerificationCompleted:$credential")
+    }
+
+    override fun onVerificationFailed(e: FirebaseException) {
+        certificationStatus = false
+
+        Log.w("onVerificationFailed", "onVerificationFailed", e)
+
+        if (e is FirebaseAuthInvalidCredentialsException) {
+            Log.d("onVerificationFailed", "FirebaseAuthInvalidCredentialsException")
+        } else if (e is FirebaseTooManyRequestsException) {
+            Log.d("onVerificationFailed", "FirebaseTooManyRequestsException")
+        } else if (e is FirebaseAuthMissingActivityForRecaptchaException) {
+            Log.d("onVerificationFailed", "FirebaseAuthMissingActivityForRecaptchaException")
+        }
+    }
+
+    override fun onCodeSent(
+        verificationId: String,
+        token: PhoneAuthProvider.ForceResendingToken,
+    ) {
+        certificationStatus = true
+        checkId = verificationId
+        Log.d("onCodeSent", "onCodeSent:$verificationId")
+    }
+}
+
+private fun signInWithPhoneAuthCredential(
+    credential: PhoneAuthCredential, auth: FirebaseAuth, activity: AuthActivity
+) {
+    auth.signInWithCredential(credential).addOnCompleteListener(activity) { task ->
+            if (task.isSuccessful) {
+                //인증성공
+            } else {
+                //인증실패
+            }
+        }
+}
 
 //Top App bar
 @Composable
@@ -271,7 +363,7 @@ fun StatusMessage(message: String, errorStatus: Boolean) {
 fun SelectBirth(brith: String?, viewModel: SignupViewModel) {
     val isFocused = remember { mutableStateOf(false) }
 
-    BasicTextField(value = formatStringDate(brith ?: ""),
+    BasicTextField(value = brith ?: "",
         onValueChange = {
             if (it.length <= birthMaxCharacterCount) {
                 viewModel.birth(it)
@@ -287,6 +379,7 @@ fun SelectBirth(brith: String?, viewModel: SignupViewModel) {
 
         textStyle = authText.bodyMedium,
         maxLines = 1,
+        visualTransformation = MaskNumberVisualTransformation("0000-00-00", '0'),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         decorationBox = { innerTextField ->
             Box(
@@ -301,29 +394,8 @@ fun SelectBirth(brith: String?, viewModel: SignupViewModel) {
         })
 }
 
-fun formatStringDate(inputDate: String): String {
-    return try {
-        if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
-            // 입력된 날짜 문자열을 LocalDate 객체로 파싱
-            val date = LocalDate.parse(inputDate, DateTimeFormatter.ofPattern("yyyyMMdd"))
-
-            // 출력할 형식으로 포맷팅하여 문자열 반환
-            Log.d("날짜", date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-            date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-
-        } else {
-            val date = SimpleDateFormat("yyyyMMdd").parse(inputDate)
-            Log.d("날짜1", SimpleDateFormat("yyyy-MM-dd").format(date))
-
-            SimpleDateFormat("yyyy-MM-dd").format(date)
-        }
-    } catch (e: Exception) {
-        Log.d("애러", e.message.toString())
-        inputDate
-    }
-}
-
-val passwordPattern = Regex("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~․!@#\$%^&*()_\\-+=|\\\\;:‘“<>,.?/]).{10,20}\$")
+val passwordPattern =
+    Regex("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~․!@#\$%^&*()_\\-+=|\\\\;:‘“<>,.?/]).{10,20}\$")
 
 
 fun checkPasswordPattern(input: String): Boolean {

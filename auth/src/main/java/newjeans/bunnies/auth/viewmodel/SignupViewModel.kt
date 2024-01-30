@@ -6,19 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.FirebaseException
-import com.google.firebase.FirebaseTooManyRequestsException
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
-import com.google.firebase.auth.PhoneAuthProvider
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+
 import kotlinx.coroutines.launch
-import newjeans.bunnies.auth.presentation.AuthActivity
+
 import newjeans.bunnies.network.auth.AuthRepository
 import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
-import java.util.concurrent.TimeUnit
 
 import javax.inject.Inject
 
@@ -225,46 +219,6 @@ class SignupViewModel @Inject constructor(
             }.onFailure {
 
             }
-        }
-    }
-
-    fun sendVeriftNumber(context: AuthActivity, phoneNumber: String) {
-        val options = PhoneAuthOptions.newBuilder()
-            .setPhoneNumber(phoneNumber)
-            .setTimeout(60L, TimeUnit.SECONDS)
-            .setActivity(context)
-            .setCallbacks(callbacks)
-            .build()
-        PhoneAuthProvider.verifyPhoneNumber(options)
-
-    }
-
-    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            Log.d("AuthRepository", "onVerificationCompleted:$credential")
-            //signInWithPhoneAuthCredential(credential)
-        }
-
-        override fun onVerificationFailed(e: FirebaseException) {
-            // This callback is invoked in an invalid request for verification is made,
-            // for instance if the the phone number format is not valid.
-            Log.w("AuthRepository", "onVerificationFailed", e)
-
-            if (e is FirebaseAuthInvalidCredentialsException) {
-                // Invalid request
-            } else if (e is FirebaseTooManyRequestsException) {
-                // The SMS quota for the project has been exceeded
-            }
-        }
-
-        override fun onCodeSent(
-            verificationId: String,
-            token: PhoneAuthProvider.ForceResendingToken
-        ) {
-            Log.d("AuthRepository", "onCodeSent:$verificationId")
-            // Save verification ID and resending token so we can use them later
-//            storedVerificationId = verificationId
-//            resendToken = token
         }
     }
 }

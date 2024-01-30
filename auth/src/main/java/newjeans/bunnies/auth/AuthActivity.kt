@@ -1,4 +1,4 @@
-package newjeans.bunnies.auth.presentation
+package newjeans.bunnies.auth
 
 
 import android.content.Context
@@ -13,8 +13,11 @@ import androidx.annotation.RequiresApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.FirebaseApp
 
 import dagger.hilt.android.AndroidEntryPoint
+import newjeans.bunnies.auth.presentation.LoginScreen
+import newjeans.bunnies.auth.presentation.SignupScreen
 
 import newjeans.bunnies.auth.presentation.navigation.NavigationRoute
 import newjeans.bunnies.auth.viewmodel.LoginViewModel
@@ -29,7 +32,7 @@ class AuthActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        FirebaseApp.initializeApp(this)
         setContent {
             val navController = rememberNavController()
             NavHost(
@@ -45,7 +48,8 @@ class AuthActivity : ComponentActivity() {
                 composable(NavigationRoute.signupRoute) {
                     SignupScreen(
                         viewModel = signupViewModel,
-                        onNavigateToLogin = { navController.navigate(NavigationRoute.loginRoute) }
+                        onNavigateToLogin = { navController.navigate(NavigationRoute.loginRoute) },
+                        this@AuthActivity
                     )
                 }
             }
