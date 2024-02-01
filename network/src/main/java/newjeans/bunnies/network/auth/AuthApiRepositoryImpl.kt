@@ -10,7 +10,7 @@ import newjeans.bunnies.network.global.dto.response.StatusResponseDto
 import javax.inject.Inject
 
 
-class ApiRepositoryImpl @Inject constructor(
+class AuthApiRepositoryImpl @Inject constructor(
     private val authApi: AuthApi
 ) : AuthRepository {
     override suspend fun login(loginRequestDto: LoginReqeustDto): LoginResponseDto {
