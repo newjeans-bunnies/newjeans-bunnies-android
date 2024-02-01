@@ -6,8 +6,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 
-import newjeans.bunnies.network.auth.ApiRepositoryImpl
+import newjeans.bunnies.network.auth.AuthApiRepositoryImpl
 import newjeans.bunnies.network.auth.AuthRepository
+import newjeans.bunnies.network.post.PostApiRepositoryImpl
+import newjeans.bunnies.network.post.PostRepository
 
 import javax.inject.Singleton
 
@@ -17,7 +19,12 @@ import javax.inject.Singleton
 class RepositoryModule {
     @Provides
     @Singleton
-    fun provideAuthRepository(apiRepositoryImpl: ApiRepositoryImpl): AuthRepository =
-        apiRepositoryImpl
+    fun provideAuthRepository(authApiRepositoryImpl: AuthApiRepositoryImpl): AuthRepository =
+        authApiRepositoryImpl
+
+    @Provides
+    @Singleton
+    fun providePostRepository(postApiRepositoryImpl: PostApiRepositoryImpl): PostRepository =
+        postApiRepositoryImpl
 
 }
