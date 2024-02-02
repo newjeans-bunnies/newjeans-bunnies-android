@@ -27,7 +27,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import newjeans.bunnies.auth.utils.PhoneVisualTransformation
+import newjeans.bunnies.auth.utils.MaskNumberVisualTransformation
 
 import newjeans.bunnies.designsystem.theme.AuthButtonColor
 import newjeans.bunnies.designsystem.theme.AuthEditTextColor
@@ -58,7 +58,7 @@ fun IdEditTextEndButton(
         BasicTextField(
             value = id,
             onValueChange = {
-                if (it.length <= maxValueLength){
+                if (it.length <= maxValueLength) {
                     id = it
                     chageEvent(it)
                 }
@@ -136,10 +136,10 @@ fun PhoneNumberEditTextEndButton(
                 .onFocusChanged {
                     isFocused.value = it.isFocused
                 },
-            visualTransformation = PhoneVisualTransformation("000-0000-0000", '0'),
+            visualTransformation = MaskNumberVisualTransformation("000-0000-0000", '0'),
             textStyle = authText.bodyMedium,
             maxLines = 1,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
@@ -159,7 +159,9 @@ fun PhoneNumberEditTextEndButton(
             modifier = Modifier
                 .clickable(
                     onClick = {
-                        event(phoneNumber)
+                        if(isValidPhoneNumber(phoneNumber)){
+                            event(phoneNumber)
+                        }
                     }, interactionSource = remember {
                         MutableInteractionSource()
                     }, indication = null
@@ -174,6 +176,11 @@ fun PhoneNumberEditTextEndButton(
             )
         }
     }
+}
+
+fun isValidPhoneNumber(input: String): Boolean {
+    val pattern = Regex("^010\\d{8}$")
+    return pattern.matches(input)
 }
 
 @Composable
