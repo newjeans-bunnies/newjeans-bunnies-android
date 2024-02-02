@@ -1,16 +1,16 @@
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.android.application) apply false
-    id ("com.google.dagger.hilt.android")
+
+    id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
-    id ("kotlin-kapt")
+    id("kotlin-kapt")
 }
 
 android {
     namespace = "newjeans.bunnies.auth"
-    compileSdkVersion = "android-34"
+    compileSdk = 34
 
     buildTypes {
         release {
@@ -21,11 +21,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
-    }
     buildFeatures {
         compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.2"
     }
     packaging {
         resources {
@@ -51,13 +51,13 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
-
+    implementation("com.google.firebase:firebase-analytics-ktx")
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.navigation)
-    implementation (libs.androidx.runtime.livedata)
+    implementation(libs.androidx.runtime.livedata)
 
     debugImplementation(libs.androidx.ui.tooling)
 
@@ -66,7 +66,6 @@ dependencies {
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
-
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

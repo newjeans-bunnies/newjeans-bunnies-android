@@ -4,12 +4,12 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
-    id ("com.google.dagger.hilt.android")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
     namespace = "newjeans.bunnies"
-    compileSdkVersion = "android-34"
+    compileSdk = 34
 
 
     defaultConfig {
@@ -22,15 +22,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
-    packaging {
-        resources {
-            excludes += "META-INF/gradle/incremental.annotation.processors"
-        }
-    }
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+    packaging {
+        resources {
+            excludes += "META-INF/gradle/incremental.annotation.processors"
         }
     }
 
@@ -38,7 +37,8 @@ android {
     dependencies {
         implementation(project(":designsystem"))
         implementation(project(":database"))
-        implementation(project(":auth"))
+//        implementation(project(":auth"))
+        implementation(project(":main"))
         implementation(project(":di"))
 
         constraints {
