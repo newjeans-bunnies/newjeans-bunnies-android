@@ -58,12 +58,12 @@ interface PostApi {
     // 특정 유저 게시글 가져오기
     @GET("api/user/basic-info/{userId}")
     suspend fun userPostBasicInfo(
-        @Path(value = "userId") userId: String,
+        @Path("userId") userId: String,
         @Query("date") date: String
     ): List<PostBasicInfoResponseDto>
     @GET("api/user/detail/{userId}")
     suspend fun userPostDetail(
-        @Path(value = "userId") userId: String,
+        @Path("userId") userId: String,
         @Query("date") date: String
     ): List<PostDetailResponseDto>
 
@@ -80,7 +80,7 @@ interface PostApi {
     @GET("/api/detail/{uuid}")
     suspend fun postDetail(
         @Header("Authorization") authorization: String,
-        @Path(value = "userId") userId: String
+        @Path(value = "uuid") uuid: String
     ): PostDetailResponseDto
 
 
