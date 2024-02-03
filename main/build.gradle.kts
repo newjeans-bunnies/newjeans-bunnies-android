@@ -63,6 +63,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling.preview)
 
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.26.2-beta")
+    implementation ("androidx.compose.foundation:foundation:1.6.0")
+    implementation (libs.glide)
+
 
 
     implementation(libs.hilt.android)
