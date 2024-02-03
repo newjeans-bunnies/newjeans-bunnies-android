@@ -1,4 +1,4 @@
-package newjeans.bunnies.main.presentation.ui
+package newjeans.bunnies.main.presentation.post.ui
 
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Box

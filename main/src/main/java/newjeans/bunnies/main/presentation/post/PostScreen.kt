@@ -13,7 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import newjeans.bunnies.main.presentation.ui.PostAppBar
+import newjeans.bunnies.main.presentation.post.ui.Post
+import newjeans.bunnies.main.presentation.post.ui.PostAppBar
 import newjeans.bunnies.main.viewmodel.PostViewModel
 
 
@@ -26,11 +27,13 @@ fun PostScreen(viewModel: PostViewModel) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Black)
+                .background(Color.White)
         ) {
-//            items(
-//                count =
-//            )
+            items(
+                count = 2
+            ){
+                Post()
+            }
         }
     }
 }
