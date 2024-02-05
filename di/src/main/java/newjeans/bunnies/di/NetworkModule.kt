@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import newjeans.bunnies.network.auth.AuthApi
 import newjeans.bunnies.network.post.PostApi
+import newjeans.bunnies.network.user.UserApi
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -30,6 +31,11 @@ class NetworkModule {
     @Singleton
     fun providePostApi(retrofit: Retrofit): PostApi =
         retrofit.create(PostApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideUserApi(retrofit: Retrofit): UserApi =
+        retrofit.create(UserApi::class.java)
 
     @Provides
     @Singleton

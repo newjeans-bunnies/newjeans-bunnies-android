@@ -10,6 +10,8 @@ import newjeans.bunnies.network.auth.AuthApiRepositoryImpl
 import newjeans.bunnies.network.auth.AuthRepository
 import newjeans.bunnies.network.post.PostApiRepositoryImpl
 import newjeans.bunnies.network.post.PostRepository
+import newjeans.bunnies.network.user.UserApiRepositoryImpl
+import newjeans.bunnies.network.user.UserRepository
 
 import javax.inject.Singleton
 
@@ -26,5 +28,10 @@ class RepositoryModule {
     @Singleton
     fun providePostRepository(postApiRepositoryImpl: PostApiRepositoryImpl): PostRepository =
         postApiRepositoryImpl
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(userApiRepositoryImpl: UserApiRepositoryImpl): UserRepository =
+        userApiRepositoryImpl
 
 }
