@@ -23,6 +23,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildTypes {
+        release {
+            isMinifyEnabled = false
+        }
         getByName("release") {
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -32,12 +35,19 @@ android {
             excludes += "META-INF/gradle/incremental.annotation.processors"
         }
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.2"
+    }
 
 
     dependencies {
         implementation(project(":designsystem"))
         implementation(project(":database"))
-//        implementation(project(":auth"))
+        implementation(project(":network"))
+        implementation(project(":auth"))
         implementation(project(":main"))
         implementation(project(":di"))
 
@@ -50,7 +60,25 @@ android {
             }
         }
 
+        implementation(platform(libs.androidx.compose.bom))
+        implementation(libs.androidx.compose.material3)
+        implementation(libs.androidx.compose.ui)
+        implementation(libs.androidx.compose.navigation)
+
+        debugImplementation(libs.androidx.ui.tooling)
+
+        implementation(libs.androidx.compose.ui.tooling.preview)
+        debugImplementation(libs.androidx.compose.ui.tooling.preview)
+
         implementation(libs.hilt.android)
         kapt(libs.hilt.compiler)
+
+
+
+        implementation(libs.androidx.material)
+
+        implementation(libs.androidx.core.ktx)
+        implementation(libs.androidx.appcompat)
+        implementation(libs.material)
     }
 }
