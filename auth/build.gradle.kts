@@ -2,7 +2,6 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     id("kotlin-kapt")
@@ -11,6 +10,10 @@ plugins {
 android {
     namespace = "newjeans.bunnies.auth"
     compileSdk = 34
+
+    defaultConfig {
+        minSdk = 26
+    }
 
     buildTypes {
         release {
@@ -48,6 +51,8 @@ dependencies {
     implementation(project(":network"))
     implementation(project(":database"))
     implementation(project(":designsystem"))
+    implementation(project(":main"))
+
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)

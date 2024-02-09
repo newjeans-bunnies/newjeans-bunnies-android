@@ -3,6 +3,7 @@ package newjeans.bunnies.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import java.time.LocalDateTime
 
 
 class PreferenceManager(context: Context) {
@@ -21,6 +22,10 @@ class PreferenceManager(context: Context) {
         get() = prefs.getString(REFRESH_TOKEN, "").toString()
         set(value) = prefs.edit().putString(REFRESH_TOKEN, value).apply()
 
+    var expiredAt: String
+        get() = prefs.getString(EXPIRED_AT, LocalDateTime.MIN.toString()).toString()
+        set(value) = prefs.edit().putString(EXPIRED_AT, value).apply()
+
     fun deleteToken() {
         prefs.edit().remove(AUTO_LOGIN).apply()
         prefs.edit().remove(ACCESS_TOKEN).apply()
@@ -32,5 +37,6 @@ class PreferenceManager(context: Context) {
         const val AUTO_LOGIN = "AUTO_LOGIN"
         const val ACCESS_TOKEN = "ACCESS_TOKEN"
         const val REFRESH_TOKEN = "REFRESH_TOKEN"
+        const val EXPIRED_AT = "EXPIRED_AT"
     }
 }
