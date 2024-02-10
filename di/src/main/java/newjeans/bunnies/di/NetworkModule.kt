@@ -52,7 +52,6 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        headerInterceptor: Interceptor,
         loggerInterceptor: HttpLoggingInterceptor,
     ): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient().newBuilder()
@@ -60,7 +59,6 @@ class NetworkModule {
         okHttpClientBuilder.readTimeout(60, TimeUnit.SECONDS)
         okHttpClientBuilder.writeTimeout(60, TimeUnit.SECONDS)
         okHttpClientBuilder.addInterceptor(loggerInterceptor)
-        okHttpClientBuilder.addInterceptor(headerInterceptor)
 
         return okHttpClientBuilder.build()
     }
@@ -69,15 +67,4 @@ class NetworkModule {
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
-
-    @Provides
-    @Singleton
-    fun provideHeaderInterceptor() = Interceptor { chain ->
-        with(chain) {
-            val newRequest = request().newBuilder()
-                .addHeader("Authorization", "Bearer")
-                .build()
-            proceed(newRequest)
-        }
-    }
 }
