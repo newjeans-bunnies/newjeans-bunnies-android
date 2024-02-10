@@ -4,6 +4,7 @@ package newjeans.bunnies.network.auth
 import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
 import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
 import newjeans.bunnies.network.auth.dto.response.LoginResponseDto
+import newjeans.bunnies.network.auth.dto.response.RefreshResponseDto
 import newjeans.bunnies.network.auth.dto.response.SignupResponseDto
 import newjeans.bunnies.network.global.dto.response.StatusResponseDto
 
@@ -29,7 +30,7 @@ interface AuthApi {
     @PATCH("/api/auth")
     suspend fun refresh(
         @Header("refresh-token") token: String
-    )
+    ): RefreshResponseDto
 
     @GET("/api/user/check/userid")
     suspend fun checkUserID(

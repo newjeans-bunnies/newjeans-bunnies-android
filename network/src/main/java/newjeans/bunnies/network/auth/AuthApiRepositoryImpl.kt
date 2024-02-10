@@ -4,6 +4,7 @@ package newjeans.bunnies.network.auth
 import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
 import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
 import newjeans.bunnies.network.auth.dto.response.LoginResponseDto
+import newjeans.bunnies.network.auth.dto.response.RefreshResponseDto
 import newjeans.bunnies.network.auth.dto.response.SignupResponseDto
 import newjeans.bunnies.network.global.dto.response.StatusResponseDto
 
@@ -21,7 +22,7 @@ class AuthApiRepositoryImpl @Inject constructor(
         return authApi.signup(signupRequestDto)
     }
 
-    override suspend fun refresh(token: String) {
+    override suspend fun refresh(token: String): RefreshResponseDto {
         return authApi.refresh(token)
     }
 
