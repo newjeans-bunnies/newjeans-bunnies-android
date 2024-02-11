@@ -27,7 +27,7 @@ interface AuthApi {
         @Body signupRequestDto: SignupReqeustDto
     ): SignupResponseDto
 
-    @PATCH("/api/auth")
+    @PATCH("/api/auth/refresh")
     suspend fun refresh(
         @Header("refresh-token") token: String
     ): RefreshResponseDto

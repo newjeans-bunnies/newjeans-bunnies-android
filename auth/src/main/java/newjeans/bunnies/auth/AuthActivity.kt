@@ -2,6 +2,7 @@ package newjeans.bunnies.auth
 
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -22,17 +23,25 @@ import newjeans.bunnies.auth.presentation.SignupScreen
 import newjeans.bunnies.auth.presentation.navigation.NavigationRoute
 import newjeans.bunnies.auth.viewmodel.LoginViewModel
 import newjeans.bunnies.auth.viewmodel.SignupViewModel
+import newjeans.bunnies.data.PreferenceManager
+import newjeans.bunnies.main.MainActivity
 
 
 @AndroidEntryPoint
 class AuthActivity : ComponentActivity() {
+
+    companion object {
+        lateinit var prefs: PreferenceManager
+    }
 
     private val loginViewModel: LoginViewModel by viewModels()
     private val signupViewModel: SignupViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        prefs = PreferenceManager(this)
         FirebaseApp.initializeApp(this)
+
         setContent {
             val navController = rememberNavController()
             NavHost(
@@ -41,8 +50,10 @@ class AuthActivity : ComponentActivity() {
             ) {
                 composable(NavigationRoute.loginRoute) {
                     LoginScreen(
-                        loginViewModel = loginViewModel,
-                        onNavigateToSignup = { navController.navigate(NavigationRoute.signupRoute) }
+                        viewModel = loginViewModel,
+                        onNavigateToSignup = { navController.navigate(NavigationRoute.signupRoute) },
+                        toMain = { nextActivity() },
+                        prefs =  prefs
                     )
                 }
                 composable(NavigationRoute.signupRoute) {
@@ -56,8 +67,13 @@ class AuthActivity : ComponentActivity() {
         }
     }
 
+    private fun nextActivity(){
+        val mainIntent = Intent(this, MainActivity::class.java)
+        startActivity(mainIntent)
+        finish()
+    }
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+
     override fun attachBaseContext(newBase: Context) {
         val override = Configuration(newBase.resources.configuration)
         override.fontScale = 1.0f

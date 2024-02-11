@@ -24,11 +24,11 @@ class SplashViewModel @Inject constructor(
                 authRepository.refresh(refreshToken)
             }.onSuccess {
                 prefs.accessToken = it.accessToken
-                prefs.expiredAt = it.expirationTime
+                prefs.expiredAt = it.expiredAt
                 prefs.refreshToken = it.refreshToken
-                _reissueTokenState.emit(ReissueTokenState(isSuccess = true))
+                _reissueTokenState.emit(ReissueTokenState(error = "", isSuccess = true))
             }.onFailure { e ->
-                _reissueTokenState.emit(ReissueTokenState(error = e.message.toString()))
+                _reissueTokenState.emit(ReissueTokenState(error = e.message.toString(), isSuccess = false))
             }
         }
 

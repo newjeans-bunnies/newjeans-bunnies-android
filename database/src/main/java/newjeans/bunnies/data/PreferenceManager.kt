@@ -30,6 +30,7 @@ class PreferenceManager(context: Context) {
         prefs.edit().remove(AUTO_LOGIN).apply()
         prefs.edit().remove(ACCESS_TOKEN).apply()
         prefs.edit().remove(REFRESH_TOKEN).apply()
+        prefs.edit().remove(EXPIRED_AT).apply()
     }
 
     companion object {
