@@ -3,8 +3,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -44,13 +44,6 @@ android {
 
 
     dependencies {
-        implementation(project(":designsystem"))
-        implementation(project(":database"))
-        implementation(project(":network"))
-        implementation(project(":auth"))
-        implementation(project(":main"))
-        implementation(project(":di"))
-
         constraints {
             implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21") {
                 because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
@@ -59,6 +52,17 @@ android {
                 because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
             }
         }
+
+        implementation(project(":designsystem"))
+        implementation(project(":database"))
+        implementation(project(":network"))
+        implementation(project(":auth"))
+        implementation(project(":main"))
+        implementation(project(":di"))
+
+        implementation("androidx.core:core-splashscreen:1.0.1")
+
+
 
         implementation(platform(libs.androidx.compose.bom))
         implementation(libs.androidx.compose.material3)
@@ -72,8 +76,6 @@ android {
 
         implementation(libs.hilt.android)
         kapt(libs.hilt.compiler)
-
-
 
         implementation(libs.androidx.material)
 

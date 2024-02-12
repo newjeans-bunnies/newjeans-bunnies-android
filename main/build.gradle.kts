@@ -10,6 +10,11 @@ android {
     namespace = "newjeans.bunnies.main"
     compileSdk = 34
 
+
+    defaultConfig {
+        minSdk = 26
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -62,13 +67,14 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling.preview)
 
-    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.26.2-beta")
-    implementation ("androidx.compose.foundation:foundation:1.6.0")
-    implementation (libs.glide)
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.26.2-beta")
+    implementation("androidx.compose.foundation:foundation:1.6.0")
+    implementation(libs.glide)
 
-
+    implementation(libs.androidx.lifecycle.viewModelCompose)
 
     implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
 
     implementation(libs.androidx.navigation)

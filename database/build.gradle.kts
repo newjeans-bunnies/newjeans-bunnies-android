@@ -13,6 +13,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    defaultConfig {
+        minSdk = 26
+    }
     packaging {
         resources {
             excludes += "META-INF/gradle/incremental.annotation.processors"
