@@ -7,11 +7,17 @@ import newjeans.bunnies.network.post.dto.response.MakePostResponseDto
 import newjeans.bunnies.network.post.dto.response.PostBasicInfoResponseDto
 import newjeans.bunnies.network.post.dto.response.PostDetailResponseDto
 import newjeans.bunnies.network.post.dto.response.PostGoodResponseDto
+import newjeans.bunnies.network.post.dto.response.PostImageResponseDto
 
 interface PostRepository {
 
     // 게시글 만들기
     suspend fun makePost(makePostRequestDto: MakePostRequestDto): MakePostResponseDto
+
+
+    // 게시글 사진 가져오기
+
+    suspend fun postImage(postId: String): List<PostImageResponseDto>
 
 
     // 게시글 좋아요

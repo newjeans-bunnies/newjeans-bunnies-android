@@ -43,13 +43,12 @@ fun PostAppBar() {
                 .height(60.dp),
             horizontalAlignment = Alignment.End
         ) {
-            IconButton(onClick = { /*TODO("알림창으로")*/ }, modifier = Modifier) {
+            IconButton(onClick = { /*TODO("알림창으로")*/ }, modifier = Modifier.padding(end = 20.dp, top = 15.dp, bottom = 15.dp)) {
                 Icon(
                     painter = alarmIconImage,
                     contentDescription = null,
                     modifier = Modifier
                         .height(60.dp)
-                        .padding(end = 30.dp, top = 15.dp, bottom = 15.dp)
                 )
             }
         }

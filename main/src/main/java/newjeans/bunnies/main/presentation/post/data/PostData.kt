@@ -4,7 +4,7 @@ data class PostData(
     val uuid: String,
     val userId: String,
     val createDate: String,
-    val goodStatus: Boolean,
+    val goodStatus: Boolean?,
     val body: String,
     val good: Long
 )

@@ -1,6 +1,5 @@
 package newjeans.bunnies.main.presentation.post.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,23 +8,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import newjeans.bunnies.main.data.UserData
 
-import coil.compose.rememberAsyncImagePainter
-import newjeans.bunnies.designsystem.R
+import newjeans.bunnies.main.presentation.post.data.PostData
+import newjeans.bunnies.main.viewmodel.PostViewModel
 
 @Composable
-@Preview(backgroundColor = 0xFFFFFF, showBackground = true)
-fun Post() {
-    val userId = "HamTory"
-    val createDate = "02/02 - 4:26"
+fun Post(postData: PostData, postViewModel: PostViewModel, userData: UserData) {
+//    postViewModel.getPostImage(postData.uuid)
+//    val postImage by postViewModel.postImage.observeAsState()
 
-    val images = listOf("https://newjeans-bunnies-image.s3.ap-northeast-2.amazonaws.com/%E1%84%92%E1%85%A2%E1%84%85%E1%85%B5%E1%86%AB.jpg")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,12 +31,11 @@ fun Post() {
     ) {
         Row(
             modifier = Modifier
-                .padding(bottom = 10.dp)
                 .height(40.dp)
                 .fillMaxWidth()
         ) {
-            Image(
-                painter = painterResource(R.drawable.ic_post),
+            AsyncImage(
+                model = userData.userImage,
                 contentDescription = null,
                 modifier = Modifier
                     .padding(end = 10.dp))
@@ -48,17 +45,16 @@ fun Post() {
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = userId,
+                    text = postData.userId,
                     style = TextStyle.userId,
                 )
                 Spacer(modifier = Modifier.weight(1F))
                 Text(
-                    text = createDate,
+                    text = postData.createDate,
                     style = TextStyle.createDate
                 )
             }
-
         }
-        Image(images = images)
+//        Image(images = postImage?: listOf())
     }
 }
