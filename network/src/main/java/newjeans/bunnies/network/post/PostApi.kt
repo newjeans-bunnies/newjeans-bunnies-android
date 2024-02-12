@@ -7,6 +7,7 @@ import newjeans.bunnies.network.post.dto.response.MakePostResponseDto
 import newjeans.bunnies.network.post.dto.response.PostBasicInfoResponseDto
 import newjeans.bunnies.network.post.dto.response.PostDetailResponseDto
 import newjeans.bunnies.network.post.dto.response.PostGoodResponseDto
+import newjeans.bunnies.network.post.dto.response.PostImageResponseDto
 
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -35,6 +36,15 @@ interface PostApi {
         @Query("post-id") postId: String,
         @Query("user-id") userId: String
     ): PostGoodResponseDto
+
+
+
+    //게시글 사진 가져오기
+    @GET("/api/post/image")
+    suspend fun postImage(
+        @Query("post-id") postId: String
+    ): List<PostImageResponseDto>
+
 
 
 

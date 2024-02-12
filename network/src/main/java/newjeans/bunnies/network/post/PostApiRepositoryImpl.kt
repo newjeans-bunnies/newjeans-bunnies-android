@@ -7,6 +7,7 @@ import newjeans.bunnies.network.post.dto.response.MakePostResponseDto
 import newjeans.bunnies.network.post.dto.response.PostBasicInfoResponseDto
 import newjeans.bunnies.network.post.dto.response.PostDetailResponseDto
 import newjeans.bunnies.network.post.dto.response.PostGoodResponseDto
+import newjeans.bunnies.network.post.dto.response.PostImageResponseDto
 
 import javax.inject.Inject
 
@@ -16,6 +17,10 @@ class PostApiRepositoryImpl @Inject constructor(
 ) : PostRepository {
     override suspend fun makePost(makePostRequestDto: MakePostRequestDto): MakePostResponseDto {
         return postApi.makePost(makePostRequestDto)
+    }
+
+    override suspend fun postImage(postId: String): List<PostImageResponseDto> {
+        return postApi.postImage(postId)
     }
 
     override suspend fun postGood(
