@@ -26,11 +26,28 @@ class PreferenceManager(context: Context) {
         get() = prefs.getString(EXPIRED_AT, LocalDateTime.MIN.toString()).toString()
         set(value) = prefs.edit().putString(EXPIRED_AT, value).apply()
 
+    var userId: String
+        get() = prefs.getString(USER_ID, "").toString()
+        set(value) = prefs.edit().putString(USER_ID, value).apply()
+    var userImage: String?
+        get() = prefs.getString(USER_IMAGE, "").toString()
+        set(value) = prefs.edit().putString(USER_IMAGE, value).apply()
+    var userPhoneNumber: String
+        get() = prefs.getString(USER_PHONENUMBER, "").toString()
+        set(value) = prefs.edit().putString(USER_PHONENUMBER, value).apply()
+
+
     fun deleteToken() {
         prefs.edit().remove(AUTO_LOGIN).apply()
         prefs.edit().remove(ACCESS_TOKEN).apply()
         prefs.edit().remove(REFRESH_TOKEN).apply()
         prefs.edit().remove(EXPIRED_AT).apply()
+    }
+
+    fun deleteUserData(){
+        prefs.edit().remove(USER_ID).apply()
+        prefs.edit().remove(USER_PHONENUMBER).apply()
+        prefs.edit().remove(USER_IMAGE).apply()
     }
 
     companion object {
@@ -39,5 +56,8 @@ class PreferenceManager(context: Context) {
         const val ACCESS_TOKEN = "ACCESS_TOKEN"
         const val REFRESH_TOKEN = "REFRESH_TOKEN"
         const val EXPIRED_AT = "EXPIRED_AT"
+        const val USER_ID = "USER_ID"
+        const val USER_IMAGE = "USER_IMAGE"
+        const val USER_PHONENUMBER = "USER_PHONENUMBER"
     }
 }

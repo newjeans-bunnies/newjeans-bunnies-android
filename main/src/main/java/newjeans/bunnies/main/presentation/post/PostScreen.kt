@@ -8,23 +8,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
+
 import newjeans.bunnies.data.PreferenceManager
+import newjeans.bunnies.main.MainActivity
 import newjeans.bunnies.main.data.UserData
 import newjeans.bunnies.main.presentation.post.data.PostData
 import newjeans.bunnies.main.presentation.post.ui.Post
-
 import newjeans.bunnies.main.presentation.post.ui.PostAppBar
 import newjeans.bunnies.main.viewmodel.PostViewModel
 import newjeans.bunnies.network.post.dto.response.PostBasicInfoResponseDto
-import java.time.LocalDateTime
 
 
 const val TAG = "PostScreen"
@@ -32,9 +28,16 @@ const val TAG = "PostScreen"
 @Composable
 fun PostScreen(
     postViewModel: PostViewModel = hiltViewModel(),
-    prefs: PreferenceManager,
-    userData: UserData
+    content: MainActivity,
 ) {
+
+    val prefs = PreferenceManager(content)
+
+    val userData = UserData(
+        userId = prefs.userId,
+        userImage = prefs.userImage,
+        userPhoneNumber = prefs.userPhoneNumber
+    )
 
     Log.d(TAG, "userData: $userData")
 
@@ -50,7 +53,6 @@ fun PostScreen(
 
             }
             if (it.error.isNotEmpty()) {
-                Log.d(TAG, it.error)
                 //TODO("게시글 못 불러옴")
             }
         }
@@ -61,7 +63,6 @@ fun PostScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         PostAppBar()
-
     }
 }
 
