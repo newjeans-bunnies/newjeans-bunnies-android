@@ -28,6 +28,8 @@ class SplashViewModel @Inject constructor(
                 prefs.refreshToken = it.refreshToken
                 _reissueTokenState.emit(ReissueTokenState(error = "", isSuccess = true))
             }.onFailure { e ->
+                prefs.deleteUserData()
+                prefs.deleteToken()
                 _reissueTokenState.emit(ReissueTokenState(error = e.message.toString(), isSuccess = false))
             }
         }

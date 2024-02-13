@@ -4,27 +4,27 @@ package newjeans.bunnies.auth
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.FirebaseApp
 
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import newjeans.bunnies.auth.presentation.LoginScreen
 import newjeans.bunnies.auth.presentation.SignupScreen
 
 import newjeans.bunnies.auth.presentation.navigation.NavigationRoute
-import newjeans.bunnies.auth.viewmodel.LoginViewModel
-import newjeans.bunnies.auth.viewmodel.SignupViewModel
 import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.main.MainActivity
+import newjeans.bunnies.main.viewmodel.UserViewModel
 
 
 @AndroidEntryPoint
@@ -32,14 +32,16 @@ class AuthActivity : ComponentActivity() {
 
     companion object {
         lateinit var prefs: PreferenceManager
+        const val TAG = "AuthActivity"
     }
 
-    private val loginViewModel: LoginViewModel by viewModels()
-    private val signupViewModel: SignupViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         prefs = PreferenceManager(this)
+
         FirebaseApp.initializeApp(this)
 
         setContent {
@@ -50,27 +52,31 @@ class AuthActivity : ComponentActivity() {
             ) {
                 composable(NavigationRoute.loginRoute) {
                     LoginScreen(
-                        viewModel = loginViewModel,
                         onNavigateToSignup = { navController.navigate(NavigationRoute.signupRoute) },
                         toMain = { nextActivity() },
-                        prefs =  prefs
+                        prefs = prefs
                     )
                 }
                 composable(NavigationRoute.signupRoute) {
                     SignupScreen(
-                        viewModel = signupViewModel,
                         onNavigateToLogin = { navController.navigate(NavigationRoute.loginRoute) },
-                        this@AuthActivity
+                        context = this@AuthActivity
                     )
                 }
             }
         }
     }
 
-    private fun nextActivity(){
-        val mainIntent = Intent(this, MainActivity::class.java)
-        startActivity(mainIntent)
-        finish()
+    private fun nextActivity() {
+        userViewModel.getUserDetailInformation(prefs.accessToken, prefs)
+        lifecycleScope.launch {
+            userViewModel.getUserDetailInformationState.collect {
+                if (it.isSuccess) {
+                    val mainIntent = Intent(this@AuthActivity, MainActivity::class.java)
+                    startActivity(mainIntent)
+                }
+            }
+        }
     }
 
 

@@ -25,6 +25,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 import newjeans.bunnies.auth.presentation.ui.AppIconImage
 import newjeans.bunnies.auth.presentation.ui.CheckBox
@@ -43,6 +45,7 @@ import newjeans.bunnies.auth.presentation.ui.TextButton
 import newjeans.bunnies.auth.presentation.ui.image.IdIconImage
 import newjeans.bunnies.auth.presentation.ui.image.PasswordIconImage
 import newjeans.bunnies.auth.viewmodel.LoginViewModel
+import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.designsystem.theme.AuthEditTextColor
 import newjeans.bunnies.designsystem.theme.authText
 
@@ -50,29 +53,40 @@ import newjeans.bunnies.designsystem.theme.authText
 private var userId by mutableStateOf("")
 private var password by mutableStateOf("")
 
+
 @Composable
 fun LoginScreen(
-    loginViewModel: LoginViewModel,
+    viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToSignup: () -> Unit,
+    toMain: () -> Unit,
+    prefs: PreferenceManager
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AppIconImage()
         LoginIdEditText()
-        LoginPasswordEditText(loginViewModel)
+        LoginPasswordEditText(viewModel)
         Spacer(modifier = Modifier.height(5.dp))
-        StatusMessage(loginViewModel)
+        StatusMessage(viewModel)
         Spacer(modifier = Modifier.height(20.dp))
-        AutoLoginLayout(loginViewModel)
+        AutoLoginLayout(viewModel)
         Spacer(modifier = Modifier.height(15.dp))
         MainButton("로그인") {
-            loginViewModel.login(
-                autoLogin = loginViewModel.autoLoginStatus.value ?: false
+            viewModel.login(
+                autoLogin = viewModel.autoLoginStatus.value ?: false,
+                userId = userId,
+                password = password,
+                prefs = prefs
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
         TextButton("계정 만들기", onNavigateToSignup)
+    }
+    LaunchedEffect(viewModel.loginState) {
+        viewModel.loginState.collect {
+            toMain()
+        }
     }
 }
 
@@ -98,7 +112,7 @@ fun AutoLoginLayout(loginViewModel: LoginViewModel) {
 
 @Composable
 fun StatusMessage(loginViewModel: LoginViewModel) {
-    val hidePassword by loginViewModel.loginErrorStatus.observeAsState()
+    val passwordErrorStatus by loginViewModel.loginErrorStatus.observeAsState()
 
     Row(
         modifier = Modifier
@@ -106,7 +120,7 @@ fun StatusMessage(loginViewModel: LoginViewModel) {
             .fillMaxWidth(),
     ) {
         AnimatedVisibility(
-            visible = hidePassword ?: false,
+            visible = passwordErrorStatus ?: false,
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {
@@ -114,7 +128,7 @@ fun StatusMessage(loginViewModel: LoginViewModel) {
         }
 
         AnimatedVisibility(
-            visible = !(hidePassword ?: false),
+            visible = !(passwordErrorStatus ?: false),
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {

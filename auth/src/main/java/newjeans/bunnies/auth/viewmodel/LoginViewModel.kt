@@ -8,7 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import newjeans.bunnies.auth.state.LoginState
+import newjeans.bunnies.data.PreferenceManager
 
 import newjeans.bunnies.network.auth.AuthRepository
 import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
@@ -26,49 +30,46 @@ class LoginViewModel @Inject constructor(
         get() = _hidePassword
 
 
-    private val _autoLoginStatus = MutableLiveData(false)
+    private val _autoLoginStatus = MutableLiveData<Boolean>()
     val autoLoginStatus: LiveData<Boolean>
         get() = _autoLoginStatus
 
-    private val _loginErrorStatus = MutableLiveData(false)
+    private val _loginErrorStatus = MutableLiveData<Boolean>()
 
     val loginErrorStatus: LiveData<Boolean>
         get() = _loginErrorStatus
 
-    private val _userId = MutableLiveData("")
-    val userId: LiveData<String>
-        get() = _userId
-
-    private val _password = MutableLiveData("")
-    val password: LiveData<String>
-        get() = _password
+    private var _loginState = MutableSharedFlow<LoginState>()
+    val loginState: SharedFlow<LoginState> = _loginState
 
 
-    fun login(autoLogin: Boolean) {
+    fun login(autoLogin: Boolean, userId: String, password: String, prefs: PreferenceManager) {
         viewModelScope.launch {
             kotlin.runCatching {
                 authRepository.login(
                     LoginReqeustDto(
-                        userId = userId.value?:"",
-                        password = password.value?:""
+                        userId = userId,
+                        password = password
                     )
                 )
             }.onSuccess {
                 Log.d("login Success", it.toString())
-//                val prefs = NewJeansBunniesApplication.prefs
-//                prefs.accessToken = it.accessToken
-//                prefs.autoLogin = autoLogin.value?:false
-//                if(autoLogin.value == true)
-//                    prefs.refreshToken = it.refreshToken
-//                _loginError.value = false
+                _loginErrorStatus.value = false
+                prefs.accessToken = it.accessToken
+                prefs.autoLogin = autoLogin
+                if (autoLogin) {
+                    prefs.refreshToken = it.refreshToken
+                    prefs.expiredAt = it.expiredAt
+                } else {
+                    prefs.expiredAt = ""
+                    prefs.refreshToken = ""
+                }
+                _loginState.emit(LoginState(true, ""))
             }.onFailure { e ->
                 _loginErrorStatus.value = true
+                _loginState.emit(LoginState(false, e.message.toString()))
             }
         }
-    }
-
-    fun loginError(status: Boolean) {
-        _loginErrorStatus.value = status
     }
 
     fun autoLogin(status: Boolean) {

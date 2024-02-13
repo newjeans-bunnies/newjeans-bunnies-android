@@ -29,16 +29,23 @@ import kotlinx.coroutines.launch
 import newjeans.bunnies.auth.AuthActivity
 import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.main.MainActivity
+import newjeans.bunnies.main.viewmodel.UserViewModel
 
 
 @AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
 
     private val splashViewModel: SplashViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
+
+    companion object {
+        lateinit var prefs: PreferenceManager
+        const val TAG = "SplashActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val prefs = PreferenceManager(this)
+        prefs = PreferenceManager(this)
 
         val authIntent = Intent(this, AuthActivity::class.java)
         val mainIntent = Intent(this, MainActivity::class.java)
@@ -52,22 +59,16 @@ class SplashActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     splashViewModel.reissueTokenState.collect {
                         if (it.isSuccess) {
-                            Log.d("자동 로그인", it.toString())
-                            startActivity(mainIntent)
-                            finish()
+                            login(mainIntent, authIntent)
                         }
                         if (it.error.isNotEmpty()) {
                             Log.d("자동 로그인", it.toString())
-                            prefs.deleteToken()
-                            startActivity(authIntent)
-                            finish()
+                            logout(authIntent)
                         }
                     }
                 }
             } else {
-                prefs.deleteToken()
-                startActivity(authIntent)
-                finish()
+                logout(authIntent)
             }
         } else {
             setContent {
@@ -94,22 +95,41 @@ class SplashActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     splashViewModel.reissueTokenState.collect {
                         if (it.isSuccess) {
-                            Log.d("자동 로그인", it.toString())
-                            startActivity(authIntent)
-                            finish()
+                            login(mainIntent, authIntent)
                         }
                         if (it.error.isNotEmpty()) {
-                            Log.d("자동 로그인", it.toString())
-                            startActivity(mainIntent)
-                            finish()
+                            logout(authIntent)
                         }
                     }
                 }
             } else {
-                startActivity(authIntent)
-                finish()
+                logout(authIntent)
             }
         }, 1000)
+    }
+
+
+    private fun login(mainIntent: Intent, authIntent: Intent) {
+        userViewModel.getUserDetailInformation(prefs.accessToken, prefs)
+        lifecycleScope.launch {
+            userViewModel.getUserDetailInformationState.collect {
+                if (it.isSuccess) {
+                    startActivity(mainIntent)
+                    finish()
+                }
+                if (it.error.isNotEmpty()) {
+                    Log.d(TAG, it.error)
+                    logout(authIntent)
+                }
+            }
+        }
+    }
+
+    private fun logout(authIntent: Intent) {
+        prefs.deleteToken()
+        prefs.deleteUserData()
+        startActivity(authIntent)
+        finish()
     }
 }
 
