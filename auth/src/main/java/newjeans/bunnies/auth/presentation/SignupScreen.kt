@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
@@ -75,7 +77,9 @@ private var certificationStatus by mutableStateOf(false)
 
 @Composable
 fun SignupScreen(
-    viewModel: SignupViewModel, onNavigateToLogin: () -> Unit, activity: AuthActivity
+    viewModel: SignupViewModel = hiltViewModel(),
+    onNavigateToLogin: () -> Unit,
+    context: AuthActivity
 ) {
     val hidePassword by viewModel.hidePassword.observeAsState()
     val hideCheckPassword by viewModel.hideCheckPassword.observeAsState()
@@ -112,9 +116,9 @@ fun SignupScreen(
             } else if (userIdErrorStatus == true && checkUserId == userId) {
                 StatusMessage("사용가능한 아이디 입니다", false)
             } else {
+                StatusMessage("", false)
                 viewModel.userIdCheckStatus(null)
             }
-            Spacer(modifier = Modifier.height(35.dp))
             EditTextLabel(text = "비밀번호")
             Spacer(modifier = Modifier.height(10.dp))
             PasswordEditText(hint = "비밀번호", hidePassword ?: false, passwordOnValueChange = {
@@ -150,14 +154,14 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(10.dp))
             PhoneNumberEditTextEndButton(
                 hint = "전화번호", event = {
-                    sendVeriftNumber(activity, countryPhoneNumber(it), auth)
+                    sendVeriftNumber(context, countryPhoneNumber(it), auth)
                 }, buttonText = "인증번호 받기", maxValueLength = phoneNumberMaxCharacterCount
             )
             Spacer(modifier = Modifier.height(10.dp))
             CertificationNumberEditTextEndButton(
                 hint = "인증번호", event = {
                     if (certificationStatus) numberCertification(
-                        number = it, verificationId = checkId, auth = auth, activity = activity
+                        number = it, verificationId = checkId, auth = auth, activity = context
                     )
                 }, buttonText = "확인", maxValueLength = certificationNumberMaxCharacterCount
             )
@@ -174,6 +178,13 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(30.dp))
             MainButton(event = { signup(viewModel) }, message = "계정 만들기")
             Spacer(modifier = Modifier.height(20.dp))
+        }
+    }
+
+    LaunchedEffect(viewModel.signupState) {
+        viewModel.signupState.collect {
+            if(it.isSuccess)
+                onNavigateToLogin()
         }
     }
 
@@ -239,12 +250,12 @@ private fun signInWithPhoneAuthCredential(
     credential: PhoneAuthCredential, auth: FirebaseAuth, activity: AuthActivity
 ) {
     auth.signInWithCredential(credential).addOnCompleteListener(activity) { task ->
-            if (task.isSuccessful) {
-                //인증성공
-            } else {
-                //인증실패
-            }
+        if (task.isSuccessful) {
+            //인증성공
+        } else {
+            //인증실패
         }
+    }
 }
 
 //Top App bar
