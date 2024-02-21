@@ -4,6 +4,7 @@ package newjeans.bunnies.main.viewmodel
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -11,8 +12,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.main.presentation.post.data.PostData
 import newjeans.bunnies.main.presentation.post.state.PostInfoState
+import newjeans.bunnies.main.state.ReissueTokenState
+import newjeans.bunnies.network.auth.AuthRepository
 
 import newjeans.bunnies.network.post.PostRepository
 import newjeans.bunnies.network.post.dto.request.MakePostRequestDto
@@ -25,7 +29,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostViewModel @Inject constructor(
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     companion object {
         const val TAG = "PostViewModel"
@@ -45,6 +50,9 @@ class PostViewModel @Inject constructor(
 
     private var _postInfoState = MutableSharedFlow<PostInfoState>()
     val postInfoState: SharedFlow<PostInfoState> = _postInfoState
+
+    private val _reissueTokenState = MutableSharedFlow<ReissueTokenState>()
+    val reissueTokenState: SharedFlow<ReissueTokenState> = _reissueTokenState
 
     fun makePost(makePostRequestDto: MakePostRequestDto) {
         viewModelScope.launch {
@@ -75,7 +83,7 @@ class PostViewModel @Inject constructor(
         val lastDate = if (_lastDate.value.isNullOrBlank()) {
             LocalDateTime.now().toString()
         } else {
-            _lastDate.value?:LocalDateTime.now().toString()
+            _lastDate.value ?: LocalDateTime.now().toString()
         }
         viewModelScope.launch {
             kotlin.runCatching {
@@ -105,15 +113,15 @@ class PostViewModel @Inject constructor(
     }
 
 
-    fun listPostDetail(authorization: String, userId: String) {
+    fun listPostDetail(userId: String, prefs: PreferenceManager) {
         val lastDate = if (_lastDate.value.isNullOrBlank()) {
             LocalDateTime.now().toString()
         } else {
-            _lastDate.value?:LocalDateTime.now().toString()
+            _lastDate.value ?: LocalDateTime.now().toString()
         }
         viewModelScope.launch {
             kotlin.runCatching {
-                postRepository.listPostDetail("Bearer $authorization", lastDate, userId)
+                postRepository.listPostDetail("Bearer ${prefs.accessToken}", lastDate, userId)
             }.onSuccess {
                 if (it.isNotEmpty()) {
                     _lastDate.value = it[it.size - 1].createDate
@@ -132,8 +140,22 @@ class PostViewModel @Inject constructor(
                 }
                 _postInfoState.emit(PostInfoState(true, ""))
             }.onFailure { e ->
-                _postInfoState.emit(PostInfoState(false, e.message.toString()))
                 Log.d(TAG, e.message.toString())
+                if (e.message.toString() == "HTTP 401 ") {
+                    if (prefs.refreshToken.isNotEmpty()) {
+                        //reissueToken
+                        reissueToken(prefs.refreshToken, prefs.accessToken, prefs) {
+                            listPostDetail(
+                                userId,
+                                prefs
+                            )
+                        }
+                    } else {
+                        _postInfoState.emit(PostInfoState(false, e.message.toString()))
+                    }
+                } else {
+                    _postInfoState.emit(PostInfoState(false, e.message.toString()))
+                }
             }
         }
     }
@@ -186,4 +208,25 @@ class PostViewModel @Inject constructor(
         }
     }
 
+    fun reissueToken(
+        refreshToken: String,
+        accessToken: String,
+        prefs: PreferenceManager,
+        function: () -> Unit
+    ) {
+        viewModelScope.launch {
+            kotlin.runCatching {
+                authRepository.refresh(refreshToken, accessToken)
+            }.onSuccess {
+                prefs.accessToken = it.accessToken
+                prefs.expiredAt = it.expiredAt
+                prefs.refreshToken = it.refreshToken
+                _reissueTokenState.emit(ReissueTokenState(true, ""))
+                function()
+            }.onFailure { e ->
+                Log.d(TAG, e.message.toString())
+                _reissueTokenState.emit(ReissueTokenState(false, e.message.toString()))
+            }
+        }
+    }
 }
