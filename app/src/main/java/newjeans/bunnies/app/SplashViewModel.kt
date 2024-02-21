@@ -18,10 +18,10 @@ class SplashViewModel @Inject constructor(
 
     private var _reissueTokenState = MutableSharedFlow<ReissueTokenState>()
     val reissueTokenState: SharedFlow<ReissueTokenState> = _reissueTokenState
-    fun reissueToken(refreshToken: String, prefs: PreferenceManager) {
+    fun reissueToken(accessToken: String, refreshToken: String, prefs: PreferenceManager) {
         viewModelScope.launch {
             kotlin.runCatching {
-                authRepository.refresh(refreshToken)
+                authRepository.refresh(refreshToken,accessToken)
             }.onSuccess {
                 prefs.accessToken = it.accessToken
                 prefs.expiredAt = it.expiredAt

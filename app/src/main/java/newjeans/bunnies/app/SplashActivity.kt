@@ -55,7 +55,7 @@ class SplashActivity : AppCompatActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (prefs.autoLogin) {
-                splashViewModel.reissueToken(prefs.refreshToken, prefs)
+                splashViewModel.reissueToken(prefs.refreshToken, prefs.accessToken, prefs)
                 lifecycleScope.launch {
                     splashViewModel.reissueTokenState.collect {
                         if (it.isSuccess) {
@@ -91,7 +91,7 @@ class SplashActivity : AppCompatActivity() {
 
         Handler(Looper.getMainLooper()).postDelayed({
             if (prefs.autoLogin) {
-                splashViewModel.reissueToken(prefs.refreshToken, prefs)
+                splashViewModel.reissueToken(prefs.refreshToken, prefs.accessToken, prefs)
                 lifecycleScope.launch {
                     splashViewModel.reissueTokenState.collect {
                         if (it.isSuccess) {
