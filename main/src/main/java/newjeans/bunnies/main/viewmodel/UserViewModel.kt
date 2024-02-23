@@ -35,10 +35,6 @@ class UserViewModel @Inject constructor(
         const val TAG = "UserViewModel"
     }
 
-    private val _userData = MutableLiveData<UserData>()
-    val userData: LiveData<UserData>
-        get() = _userData
-
     private val _getUserDetailInformationState = MutableSharedFlow<UserDetailInformationState>()
     val getUserDetailInformationState: SharedFlow<UserDetailInformationState> =
         _getUserDetailInformationState
@@ -53,18 +49,26 @@ class UserViewModel @Inject constructor(
                 userRepository.getUserDetailInformation("Bearer $authorization")
             }.onSuccess {
                 Log.d(TAG, it.toString())
-                _userData.value?.userId = it.id
-                _userData.value?.userImage = it.imageUrl
-                _userData.value?.userPhoneNumber = it.phoneNumber
+                prefs.userId = it.id
+                prefs.userPhoneNumber = it.phoneNumber
+                prefs.userImage = it.imageUrl
                 _getUserDetailInformationState.emit(UserDetailInformationState(true, ""))
             }.onFailure { e ->
-                _getUserDetailInformationState.emit(
-                    UserDetailInformationState(
-                        false,
-                        e.message.toString()
+                Log.d(TAG, e.message.toString())
+                if (prefs.refreshToken.isNotEmpty()) {
+                    reissueToken(
+                        prefs.accessToken,
+                        prefs.refreshToken,
+                        prefs
+                    ) { getUserDetailInformation(authorization, prefs) }
+                } else {
+                    _getUserDetailInformationState.emit(
+                        UserDetailInformationState(
+                            false,
+                            e.message.toString()
+                        )
                     )
-                )
-                reissueToken(prefs.refreshToken, prefs)
+                }
             }
         }
     }
@@ -105,14 +109,16 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun reissueToken(refreshToken: String, prefs: PreferenceManager) {
+    fun reissueToken(accessToken: String, refreshToken: String, prefs: PreferenceManager, function: () -> Unit) {
         viewModelScope.launch {
             kotlin.runCatching {
-                authRepository.refresh(refreshToken)
+                authRepository.refresh(refreshToken, accessToken)
             }.onSuccess {
-                _reissueTokenState.emit(ReissueTokenState(true, ""))
                 prefs.accessToken = it.accessToken
                 prefs.expiredAt = it.expiredAt
+                prefs.refreshToken = it.refreshToken
+                _reissueTokenState.emit(ReissueTokenState(true, ""))
+                function()
             }.onFailure { e ->
                 Log.d(TAG, e.message.toString())
                 _reissueTokenState.emit(ReissueTokenState(false, e.message.toString()))
