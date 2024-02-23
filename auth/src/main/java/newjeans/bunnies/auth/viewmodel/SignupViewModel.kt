@@ -37,47 +37,15 @@ class SignupViewModel @Inject constructor(
     private var _userIdCheckState = MutableSharedFlow<UserIdCheckState>()
     val userIdCheckState: SharedFlow<UserIdCheckState> = _userIdCheckState
 
-
-
-    //유저 아이디 중복 체크
-    private val _userIdCheckStatus = MutableLiveData<Boolean>()
-    val userIdCheckStatus: LiveData<Boolean>
-        get() = _userIdCheckStatus
-
     //아이디
     private val _userId = MutableLiveData("")
     val userId: LiveData<String>
         get() = _userId
 
-    //아이디
-    private val _checkUserId = MutableLiveData("")
-    val checkUserId: LiveData<String>
-        get() = _checkUserId
-
-    //비밀번호 체크
-    private val _passwordCheckStatus = MutableLiveData<Boolean>()
-    val passwordCheckStatus: LiveData<Boolean>
-        get() = _passwordCheckStatus
-
-
-    //비밀번호 숨기기
-    private val _hidePassword = MutableLiveData<Boolean>()
-    val hidePassword: LiveData<Boolean>
-        get() = _hidePassword
-
-    private val _hideCheckPassword = MutableLiveData<Boolean>()
-    val hideCheckPassword: LiveData<Boolean>
-        get() = _hideCheckPassword
-
     //비밀번호
     private val _password = MutableLiveData("")
     val password: LiveData<String>
         get() = _password
-
-    //비밀번호 확인
-    private val _checkPassword = MutableLiveData("")
-    val checkPassword: LiveData<String>
-        get() = _checkPassword
 
     //전화번호
     private val _phoneNumber = MutableLiveData("")
@@ -117,10 +85,6 @@ class SignupViewModel @Inject constructor(
         _password.value = password
     }
 
-    fun checkPassword(checkPassword: String) {
-        _checkPassword.value = checkPassword
-    }
-
     fun birth(birth: String) {
         _birth.value = birth
     }
@@ -133,34 +97,16 @@ class SignupViewModel @Inject constructor(
         _informationConsentButton.value = status
     }
 
-    fun hidePassword(status: Boolean) {
-        _hidePassword.value = status
-    }
-
-    fun hideCheckPassword(status: Boolean) {
-        _hideCheckPassword.value = status
-    }
-
-    fun userIdCheckStatus(status: Boolean?) {
-        _userIdCheckStatus.value = status
-    }
-
-    fun passwordCheckStatus(status: Boolean?) {
-        _passwordCheckStatus.value = status
-    }
-
 
     fun checkUser(userId: String) {
         viewModelScope.launch {
             kotlin.runCatching {
                 authRepository.checkUserId(userId)
             }.onSuccess {
-                _userIdCheckStatus.value = true
-                _checkUserId.value = userId
+                _userIdCheckState.emit(UserIdCheckState(true, "", userId))
             }.onFailure { e ->
                 if (e.message.toString() == "HTTP 409 ") {
-                    _userIdCheckStatus.value = false
-                    _checkUserId.value = userId
+                    _userIdCheckState.emit(UserIdCheckState(false, e.message.toString(), userId))
                 } else {
                     Log.d("애러", e.message.toString())
                 }
@@ -174,10 +120,10 @@ class SignupViewModel @Inject constructor(
                 authRepository.checkPhoneNumber(phoneNumber)
             }.onSuccess {
                 when (it.status) {
-                    200 -> _phoneNumberCheckState.emit(PhoneNumberCheckState(true, ""))
+                    200 -> _phoneNumberCheckState.emit(PhoneNumberCheckState(true, "", phoneNumber))
                 }
             }.onFailure { e ->
-                _phoneNumberCheckState.emit(PhoneNumberCheckState(false, e.message.toString()))
+                _phoneNumberCheckState.emit(PhoneNumberCheckState(false, e.message.toString(), ""))
             }
         }
     }
