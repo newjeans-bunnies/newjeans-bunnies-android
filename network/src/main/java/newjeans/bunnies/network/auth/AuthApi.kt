@@ -29,7 +29,8 @@ interface AuthApi {
 
     @PATCH("/api/auth/refresh")
     suspend fun refresh(
-        @Header("refresh-token") token: String
+        @Header("refresh-token") refreshToken: String,
+        @Header("access-token") accessToken: String,
     ): RefreshResponseDto
 
     @GET("/api/user/check/userid")

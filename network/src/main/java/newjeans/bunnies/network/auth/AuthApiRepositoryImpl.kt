@@ -22,8 +22,8 @@ class AuthApiRepositoryImpl @Inject constructor(
         return authApi.signup(signupRequestDto)
     }
 
-    override suspend fun refresh(token: String): RefreshResponseDto {
-        return authApi.refresh(token)
+    override suspend fun refresh(refreshToken: String,accessToken: String): RefreshResponseDto {
+        return authApi.refresh(refreshToken, accessToken)
     }
 
     override suspend fun checkUserId(userId: String): StatusResponseDto {

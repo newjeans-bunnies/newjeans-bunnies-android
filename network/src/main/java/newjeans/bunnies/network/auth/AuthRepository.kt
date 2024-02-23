@@ -10,7 +10,7 @@ import newjeans.bunnies.network.global.dto.response.StatusResponseDto
 interface AuthRepository {
     suspend fun login(loginRequestDto: LoginReqeustDto): LoginResponseDto
     suspend fun signup(signupRequestDto: SignupReqeustDto): SignupResponseDto
-    suspend fun refresh(token: String): RefreshResponseDto
+    suspend fun refresh(refreshToken: String,accessToken: String): RefreshResponseDto
     suspend fun checkUserId(userId: String): StatusResponseDto
     suspend fun checkPhoneNumber(phoneNumber: String): StatusResponseDto
 }
