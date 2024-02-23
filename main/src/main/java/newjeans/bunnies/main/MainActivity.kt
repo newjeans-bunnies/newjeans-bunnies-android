@@ -144,4 +144,12 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        if (!prefs.autoLogin) {
+            prefs.deleteToken()
+            prefs.deleteUserData()
+        }
+        super.onDestroy()
+    }
 }
