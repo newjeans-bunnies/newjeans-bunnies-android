@@ -1,4 +1,7 @@
 package newjeans.bunnies.di
 
 
-const val BASE_URL = "http://192.0.0.2:8080"
+object Constant {
+    const val BASE_URL = "http://192.168.0.4:8080"
+}
+
