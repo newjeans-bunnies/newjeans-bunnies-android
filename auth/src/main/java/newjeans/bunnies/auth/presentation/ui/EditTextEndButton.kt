@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import newjeans.bunnies.auth.Constant.numberPattern
 import newjeans.bunnies.auth.utils.MaskNumberVisualTransformation
 
 import newjeans.bunnies.designsystem.theme.AuthButtonColor
@@ -127,7 +128,7 @@ fun PhoneNumberEditTextEndButton(
         BasicTextField(
             value = phoneNumber,
             onValueChange = {
-                if (it.length <= maxValueLength) phoneNumber = it
+                if (it.length <= maxValueLength && numberPattern(it)) phoneNumber = it
             },
             modifier = Modifier
                 .weight(1F)
@@ -201,7 +202,7 @@ fun CertificationNumberEditTextEndButton(
         BasicTextField(
             value = certificationNumber,
             onValueChange = {
-                if (it.length <= maxValueLength) certificationNumber = it
+                if (it.length <= maxValueLength && numberPattern(it)) certificationNumber = it
             },
             modifier = Modifier
                 .weight(1F)
@@ -213,7 +214,7 @@ fun CertificationNumberEditTextEndButton(
             visualTransformation = VisualTransformation.None,
             textStyle = authText.bodyMedium,
             maxLines = 1,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
