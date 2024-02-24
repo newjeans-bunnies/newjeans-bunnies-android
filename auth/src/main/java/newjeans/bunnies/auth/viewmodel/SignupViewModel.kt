@@ -27,6 +27,10 @@ class SignupViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
+    companion object {
+        const val TAG = "SignupViewModel"
+    }
+
 
     private var _signupState = MutableSharedFlow<SignupState>()
     val signupState: SharedFlow<SignupState> = _signupState
@@ -57,25 +61,10 @@ class SignupViewModel @Inject constructor(
     val country: LiveData<String>
         get() = _country
 
-    //언어
-    private val _language = MutableLiveData("")
-    val language: LiveData<String>
-        get() = _language
-
     //생일
     private val _birth = MutableLiveData("")
     val birth: LiveData<String>
         get() = _birth
-
-    //이용약관 동의
-    private val _useAgreementButton = MutableLiveData<Boolean>()
-    val useAgreementStatus: LiveData<Boolean>
-        get() = _useAgreementButton
-
-    //개인정보 동의
-    private val _informationConsentButton = MutableLiveData<Boolean>()
-    val informationConsentStatus: LiveData<Boolean>
-        get() = _informationConsentButton
 
     fun userId(userId: String) {
         _userId.value = userId
@@ -89,14 +78,6 @@ class SignupViewModel @Inject constructor(
         _birth.value = birth
     }
 
-    fun useAgreementButton(status: Boolean) {
-        _useAgreementButton.value = status
-    }
-
-    fun informationConsentButton(status: Boolean) {
-        _informationConsentButton.value = status
-    }
-
 
     fun checkUser(userId: String) {
         viewModelScope.launch {
@@ -105,11 +86,12 @@ class SignupViewModel @Inject constructor(
             }.onSuccess {
                 _userIdCheckState.emit(UserIdCheckState(true, "", userId))
             }.onFailure { e ->
-                if (e.message.toString() == "HTTP 409 ") {
-                    _userIdCheckState.emit(UserIdCheckState(false, e.message.toString(), userId))
-                } else {
-                    Log.d("애러", e.message.toString())
-                }
+                if (e.message.toString() == "HTTP 409 ") _userIdCheckState.emit(
+                    UserIdCheckState(
+                        false, e.message.toString(), userId
+                    )
+                )
+                else Log.d(TAG, e.message.toString())
             }
         }
     }
@@ -119,11 +101,14 @@ class SignupViewModel @Inject constructor(
             kotlin.runCatching {
                 authRepository.checkPhoneNumber(phoneNumber)
             }.onSuccess {
-                when (it.status) {
-                    200 -> _phoneNumberCheckState.emit(PhoneNumberCheckState(true, "", phoneNumber))
-                }
+                _phoneNumberCheckState.emit(PhoneNumberCheckState(true, "", phoneNumber))
             }.onFailure { e ->
-                _phoneNumberCheckState.emit(PhoneNumberCheckState(false, e.message.toString(), ""))
+                if (e.message.toString() == "HTTP 409 ") _phoneNumberCheckState.emit(
+                    PhoneNumberCheckState(
+                        false, e.message.toString(), ""
+                    )
+                )
+                else Log.d(TAG, e.message.toString())
             }
         }
     }
@@ -137,7 +122,7 @@ class SignupViewModel @Inject constructor(
                         password = password.value ?: "",
                         phoneNumber = phoneNumber.value ?: "",
                         country = country.value ?: "",
-                        language = language.value ?: "",
+                        language = country.value ?: "",
                         birth = birth.value ?: ""
                     )
                 )

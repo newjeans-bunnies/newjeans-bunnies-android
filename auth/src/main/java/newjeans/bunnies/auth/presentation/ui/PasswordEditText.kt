@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,104 +34,46 @@ import newjeans.bunnies.designsystem.theme.TextRule.passwordMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.authText
 
 
-private var checkPassword by mutableStateOf("")
-private var password by mutableStateOf("")
-
-
 @Composable
 fun PasswordEditText(
     hint: String,
-    checkStatus: Boolean,
-    checkEvent: (Boolean) -> Unit,
     passwordOnValueChange: (String) -> Unit
 ) {
-    val isFocused = remember { mutableStateOf(false) }
-
-    BasicTextField(value = password,
-        onValueChange = {
-            if (it.length <= passwordMaxCharacterCount) {
-                password = it
-                passwordOnValueChange(it)
-            }
-        },
-        modifier = Modifier
-            .height(50.dp)
-            .fillMaxWidth()
-            .padding(start = 30.dp, end = 30.dp)
-            .onFocusChanged {
-                isFocused.value = it.isFocused
-            }
-            .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp)),
-        visualTransformation = if (checkStatus) VisualTransformation.None
-        else PasswordVisualTransformation(),
-
-        textStyle = authText.bodyMedium,
-        maxLines = 1,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        decorationBox = { innerTextField ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 30.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (password.isEmpty() && !isFocused.value)
-                    Text(text = hint, style = authText.bodySmall)
-                innerTextField()
-                Spacer(modifier = Modifier.weight(1f))
-                PasswordStatusCheckBox(checkStatus) {
-                    checkEvent(it)
+    var isFocused by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") }
+    SelectionContainer {
+        BasicTextField(value = password,
+            onValueChange = {
+                if (it.length <= passwordMaxCharacterCount) {
+                    password = it
+                    passwordOnValueChange(it)
                 }
-            }
-        })
-}
-
-@Composable
-fun CheckPasswordEditText(
-    hint: String,
-    checkStatus: Boolean,
-    checkEvent: (Boolean) -> Unit,
-    passwordOnValueChange: (String) -> Unit
-
-) {
-    val isFocused = remember { mutableStateOf(false) }
-
-
-    BasicTextField(value = checkPassword,
-        onValueChange = {
-            if (it.length <= passwordMaxCharacterCount) {
-                checkPassword = it
-                passwordOnValueChange(it)
-            }
-        },
-        modifier = Modifier
-            .height(50.dp)
-            .padding(start = 30.dp, end = 30.dp)
-            .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp))
-            .onFocusChanged {
-                isFocused.value = it.isFocused
             },
-        visualTransformation = if (checkStatus) VisualTransformation.None
-        else PasswordVisualTransformation(),
-
-        textStyle = authText.bodyMedium,
-        maxLines = 1,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        decorationBox = { innerTextField ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 30.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (checkPassword.isEmpty() && !isFocused.value)
-                    Text(text = hint, style = authText.bodySmall)
-                innerTextField()
-                Spacer(modifier = Modifier.weight(1f))
-                PasswordStatusCheckBox(checkStatus) {
-                    Log.d("클릭", it.toString())
-                    checkEvent(it)
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth()
+                .padding(start = 30.dp, end = 30.dp)
+                .onFocusChanged {
+                    isFocused = it.isFocused
                 }
-            }
-        })
+                .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp)),
+            visualTransformation = PasswordVisualTransformation(),
+
+            textStyle = authText.bodyMedium,
+            maxLines = 1,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password).copy(),
+            decorationBox = { innerTextField ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 30.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (password.isEmpty() && !isFocused)
+                        Text(text = hint, style = authText.bodySmall)
+                    innerTextField()
+                }
+            })
+    }
+
 }

@@ -2,7 +2,6 @@ package newjeans.bunnies.auth.presentation
 
 
 import android.util.Log
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +39,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import newjeans.bunnies.auth.Constant
+import newjeans.bunnies.auth.Constant.numberPattern
+import newjeans.bunnies.auth.Constant.passwordPattern
 
 import newjeans.bunnies.auth.presentation.ui.CertificationNumberEditTextEndButton
 import newjeans.bunnies.auth.presentation.ui.CheckBox
@@ -58,6 +60,9 @@ import newjeans.bunnies.designsystem.theme.TextRule.birthMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.TextRule.certificationNumberMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.TextRule.phoneNumberMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.authText
+import java.time.DateTimeException
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 const val TAG = "SignupScreen"
@@ -80,16 +85,13 @@ fun SignupScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-            IdUI()
-            PasswordUI()
+            IdUI(viewModel)
+            PasswordUI(viewModel)
             PhoneNumberUI(phoneNumberVerification = phoneNumberVerification)
             Spacer(modifier = Modifier.height(35.dp))
-            EditTextLabel(text = "나라")
-            Spacer(modifier = Modifier.height(10.dp))
-            SelectCountryRadioButton(listOf("KR", "JP", "CN", "US"))
+            CountryUI(viewModel)
             Spacer(modifier = Modifier.height(35.dp))
-            BirthUI()
-            Spacer(modifier = Modifier.height(30.dp))
+            BirthUI(viewModel)
             ConditionsOfUse(viewModel)
             Spacer(modifier = Modifier.height(30.dp))
             MainButton(event = { signup(viewModel) }, message = "계정 만들기")
@@ -107,7 +109,7 @@ fun SignupScreen(
 
 @Composable
 fun IdUI(
-    viewModel: SignupViewModel = hiltViewModel()
+    viewModel: SignupViewModel
 ) {
     var userIdState: Boolean? by remember { mutableStateOf(null) }
     var userIdCheckStatus: Boolean? by remember { mutableStateOf(null) }
@@ -148,19 +150,13 @@ fun IdUI(
 
 @Composable
 fun PasswordUI(
-    viewModel: SignupViewModel = hiltViewModel()
+    viewModel: SignupViewModel
 ) {
     var passwordState: Boolean? by remember { mutableStateOf(null) }
     var passwordCheck by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val passwordPattern =
-        Regex("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~․!@#\$%^&*()_\\-+=|\\\\;:‘“<>,.?/]).{10,20}\$")
 
-
-    fun checkPasswordPattern(input: String): Boolean {
-        return passwordPattern.matches(input)
-    }
 
 
     EditTextLabel(text = "비밀번호")
@@ -172,18 +168,19 @@ fun PasswordUI(
     PasswordEditText(hint = "비밀번호 확인", passwordOnValueChange = {
         passwordCheck = it
     })
-    if (checkPasswordPattern(password)) {
-        if (password != passwordCheck && password.isNotEmpty() && passwordCheck.isNotEmpty()) {
-            StatusMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.", true)
-            passwordState = false
-        } else if (password == passwordCheck && password.isNotEmpty() && passwordCheck.isNotEmpty()) {
-            StatusMessage("사용가능한 비밀번호입니다.", false)
-            passwordState = true
-        } else {
-            StatusMessage("", true)
-            passwordState = false
-        }
-    } else if (!checkPasswordPattern(password) && password.isNotBlank()) {
+    if (passwordPattern(password)) {
+        passwordState =
+            if (password != passwordCheck && password.isNotEmpty() && passwordCheck.isNotEmpty()) {
+                StatusMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.", true)
+                false
+            } else if (password == passwordCheck && password.isNotEmpty() && passwordCheck.isNotEmpty()) {
+                StatusMessage("사용가능한 비밀번호입니다.", false)
+                true
+            } else {
+                StatusMessage("", true)
+                false
+            }
+    } else if (!passwordPattern(password) && password.isNotBlank()) {
         StatusMessage("비밀번호는 대소문자, 특수문자, 숫자 포함 최소 10글자입니다.", true)
         passwordState = false
     } else {
@@ -220,15 +217,52 @@ fun PhoneNumberUI(
 
 @Composable
 fun BirthUI(
-    viewModel: SignupViewModel = hiltViewModel()
+    viewModel: SignupViewModel
 ) {
     var birth by remember { mutableStateOf("") }
+    var birthState: Boolean? by remember { mutableStateOf(null) }
 
     EditTextLabel(text = "생년월일")
     Spacer(modifier = Modifier.height(10.dp))
-    SelectBirth {
-        birth = it
+    SelectBirth { birth = it }
+    if (birth.length == 8) {
+        val year = birth.substring(0 until 4).toInt()
+        val month = birth.substring(5 until 6).toInt()
+        val day = birth.substring(7 until 8).toInt()
+        birthState = if (checkBirth(year, month, day)) {
+            if (LocalDate.of(year, month, day) < LocalDate.now()) {
+                StatusMessage("", false)
+                true
+            } else {
+                StatusMessage("다시 적어주세요", true)
+                false
+            }
+        } else {
+            StatusMessage("다시 적어주세요", true)
+            false
+        }
+    } else {
+        StatusMessage("", true)
+        birthState = false
     }
+}
+
+private fun checkBirth(year: Int, month: Int, day: Int): Boolean {
+    try {
+        LocalDate.of(year, month, day)
+    } catch (e: DateTimeException) {
+        return false
+    }
+    return true
+}
+
+@Composable
+fun CountryUI(
+    viewModel: SignupViewModel
+) {
+    EditTextLabel(text = "나라")
+    Spacer(modifier = Modifier.height(10.dp))
+    SelectCountryRadioButton(listOf("KR", "JP", "CN", "US"))
 }
 
 //Top App bar
@@ -236,7 +270,6 @@ fun BirthUI(
 fun SignupAppBar(
     onNavigateToLogin: () -> Unit
 ) {
-
     Box(
         modifier = Modifier
             .height(60.dp)
@@ -279,9 +312,9 @@ fun signup(signupViewModel: SignupViewModel) {
 fun ConditionsOfUse(
     signupViewModel: SignupViewModel
 ) {
-    val useAgreementStatus by signupViewModel.useAgreementStatus.observeAsState()
-    val informationConsentStatus by signupViewModel.informationConsentStatus.observeAsState()
 
+    var useAgreementStatus by remember { mutableStateOf(false) }
+    var informationConsentStatus by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -294,8 +327,8 @@ fun ConditionsOfUse(
         Row(
             modifier = Modifier.align(Alignment.Start)
         ) {
-            CheckBox(useAgreementStatus ?: false) {
-                signupViewModel.useAgreementButton(it)
+            CheckBox(useAgreementStatus) {
+                useAgreementStatus = it
             }
             Spacer(Modifier.width(17.dp))
             Text(
@@ -312,8 +345,8 @@ fun ConditionsOfUse(
         Row(
             modifier = Modifier.align(Alignment.Start)
         ) {
-            CheckBox(informationConsentStatus ?: false) {
-                signupViewModel.informationConsentButton(it)
+            CheckBox(informationConsentStatus) {
+                informationConsentStatus = it
             }
             Spacer(Modifier.width(17.dp))
             Text(
@@ -352,7 +385,7 @@ fun SelectBirth(
 
     BasicTextField(value = birth,
         onValueChange = {
-            if (it.length <= birthMaxCharacterCount) {
+            if (it.length <= birthMaxCharacterCount && numberPattern(it)) {
                 birth = it
                 birthOnValueChange(it)
             }
@@ -368,7 +401,7 @@ fun SelectBirth(
         textStyle = authText.bodyMedium,
         maxLines = 1,
         visualTransformation = MaskNumberVisualTransformation("0000-00-00", '0'),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
         decorationBox = { innerTextField ->
             Box(
                 modifier = Modifier
