@@ -27,6 +27,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -75,18 +76,23 @@ fun LoginScreen(
         AutoLoginLayout(viewModel)
         Spacer(modifier = Modifier.height(15.dp))
         MainButton("로그인") {
-            viewModel.login(
-                autoLogin = viewModel.autoLoginStatus.value ?: false,
-                userId = userId,
-                password = password,
-                prefs = prefs
-            )
+            if(userId.isNotEmpty() && password.isNotEmpty()){
+                viewModel.login(
+                    autoLogin = viewModel.autoLoginStatus.value ?: false,
+                    userId = userId,
+                    password = password,
+                    prefs = prefs
+                )
+            }
+
         }
         Spacer(modifier = Modifier.height(20.dp))
         TextButton("계정 만들기", onNavigateToSignup)
     }
     LaunchedEffect(viewModel.loginState) {
         viewModel.loginState.collect {
+            userId = ""
+            password = ""
             toMain()
         }
     }
@@ -105,7 +111,7 @@ fun AutoLoginLayout(loginViewModel: LoginViewModel) {
 
     ) {
         CheckBox(autoLoginStatus ?: false) {
-            loginViewModel.autoLogin(it)
+            loginViewModel.autoLoginStatus(it)
         }
         Spacer(modifier = Modifier.width(17.dp))
         Text(text = "로그인 유지하기", style = authText.bodyMedium)
@@ -114,7 +120,14 @@ fun AutoLoginLayout(loginViewModel: LoginViewModel) {
 
 @Composable
 fun StatusMessage(loginViewModel: LoginViewModel) {
-    val passwordErrorStatus by loginViewModel.loginErrorStatus.observeAsState()
+    var passwordErrorStatus: Boolean? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(loginViewModel.loginState) {
+        loginViewModel.loginState.collect {
+            passwordErrorStatus = it.isSuccess
+            Log.d(TAG, passwordErrorStatus.toString())
+        }
+    }
 
     Row(
         modifier = Modifier
@@ -122,7 +135,7 @@ fun StatusMessage(loginViewModel: LoginViewModel) {
             .fillMaxWidth(),
     ) {
         AnimatedVisibility(
-            visible = passwordErrorStatus ?: false,
+            visible = passwordErrorStatus == false,
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {
@@ -130,11 +143,11 @@ fun StatusMessage(loginViewModel: LoginViewModel) {
         }
 
         AnimatedVisibility(
-            visible = !(passwordErrorStatus ?: false),
+            visible = passwordErrorStatus == true || passwordErrorStatus == null,
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {
-            Spacer(modifier = Modifier.height(30.dp))
+            StatusMessageText("", false)
         }
 
     }
@@ -187,7 +200,7 @@ fun LoginIdEditText() {
 fun LoginPasswordEditText(
     loginViewModel: LoginViewModel
 ) {
-    val hidePassword by loginViewModel.hidePassword.observeAsState()
+    var hidePassword by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -203,7 +216,7 @@ fun LoginPasswordEditText(
                 .padding(top = 6.dp, start = 24.dp, end = 24.dp)
                 .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp))
                 .border(0.dp, Color.Transparent), // 테두리 제거
-            visualTransformation = if (hidePassword == true) VisualTransformation.None
+            visualTransformation = if (hidePassword) VisualTransformation.None
             else PasswordVisualTransformation(),
 
             textStyle = authText.bodyMedium,
@@ -226,8 +239,8 @@ fun LoginPasswordEditText(
                         }
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    PasswordStatusCheckBox(loginViewModel.hidePassword.value ?: false) {
-                        loginViewModel.hidePassword(it)
+                    PasswordStatusCheckBox(hidePassword) {
+                        hidePassword = it
                     }
                 }
             })
