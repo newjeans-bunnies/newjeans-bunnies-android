@@ -19,8 +19,8 @@ include(
     ":app",
     ":designsystem",
     ":auth",
+    ":main",
     ":database",
     ":di",
     ":network",
 )
-include(":main")
