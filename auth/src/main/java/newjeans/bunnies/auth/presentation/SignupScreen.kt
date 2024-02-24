@@ -65,7 +65,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 
-const val TAG = "SignupScreen"
+private const val TAG = "SignupScreen"
 
 @Composable
 fun SignupScreen(

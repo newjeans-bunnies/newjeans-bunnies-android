@@ -1,12 +1,13 @@
 package newjeans.bunnies.main.presentation
 
 
-import androidx.compose.material3.Text
+import android.util.Log
 import androidx.compose.runtime.Composable
-import newjeans.bunnies.main.viewmodel.UserViewModel
 
+
+private const val TAG = "SettingsScreen"
 
 @Composable
-fun SettingsScreen(userViewModel: UserViewModel){
-    Text("SettingsScreen")
+fun SettingsScreen(){
+    Log.d(TAG,"SettingsScreen")
 }

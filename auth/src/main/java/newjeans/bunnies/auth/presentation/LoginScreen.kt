@@ -1,6 +1,7 @@
 package newjeans.bunnies.auth.presentation
 
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -53,6 +54,7 @@ import newjeans.bunnies.designsystem.theme.authText
 private var userId by mutableStateOf("")
 private var password by mutableStateOf("")
 
+private const val TAG = "LoginScreen"
 
 @Composable
 fun LoginScreen(

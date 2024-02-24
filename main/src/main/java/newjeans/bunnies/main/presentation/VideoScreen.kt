@@ -1,11 +1,12 @@
 package newjeans.bunnies.main.presentation
 
 
-import androidx.compose.material3.Text
+import android.util.Log
 import androidx.compose.runtime.Composable
 
+private const val TAG = "SettingsScreen"
 
 @Composable
 fun VideoScreen() {
-    Text("VideoScreen")
+    Log.d(TAG,"VideoScreen")
 }
