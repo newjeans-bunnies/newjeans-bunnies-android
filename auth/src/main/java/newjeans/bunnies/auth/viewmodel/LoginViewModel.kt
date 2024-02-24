@@ -11,7 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import newjeans.bunnies.auth.state.LoginState
+import newjeans.bunnies.auth.state.login.LoginState
 import newjeans.bunnies.data.PreferenceManager
 
 import newjeans.bunnies.network.auth.AuthRepository
@@ -25,19 +25,15 @@ class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    private val _hidePassword = MutableLiveData(false)
-    val hidePassword: LiveData<Boolean>
-        get() = _hidePassword
-
 
     private val _autoLoginStatus = MutableLiveData<Boolean>()
     val autoLoginStatus: LiveData<Boolean>
         get() = _autoLoginStatus
 
-    private val _loginErrorStatus = MutableLiveData<Boolean>()
+    fun autoLoginStatus(status: Boolean) {
+        _autoLoginStatus.value = status
+    }
 
-    val loginErrorStatus: LiveData<Boolean>
-        get() = _loginErrorStatus
 
     private var _loginState = MutableSharedFlow<LoginState>()
     val loginState: SharedFlow<LoginState> = _loginState
@@ -54,30 +50,17 @@ class LoginViewModel @Inject constructor(
                 )
             }.onSuccess {
                 Log.d("login Success", it.toString())
-                _loginErrorStatus.value = false
-                prefs.accessToken = it.accessToken
-                prefs.autoLogin = autoLogin
-                if (autoLogin) {
-                    prefs.refreshToken = it.refreshToken
-                    prefs.expiredAt = it.expiredAt
-                } else {
-                    prefs.expiredAt = ""
-                    prefs.refreshToken = ""
+                with(prefs){
+                    accessToken = it.accessToken
+                    refreshToken = it.refreshToken
+                    expiredAt = it.expiredAt
+                    this.autoLogin = autoLogin
                 }
                 _loginState.emit(LoginState(true, ""))
             }.onFailure { e ->
-                _loginErrorStatus.value = true
                 _loginState.emit(LoginState(false, e.message.toString()))
             }
         }
-    }
-
-    fun autoLogin(status: Boolean) {
-        _autoLoginStatus.value = status
-    }
-
-    fun hidePassword(status: Boolean) {
-        _hidePassword.value = status
     }
 
 }

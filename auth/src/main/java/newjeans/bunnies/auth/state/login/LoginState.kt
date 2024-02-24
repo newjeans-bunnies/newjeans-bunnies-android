@@ -1,4 +1,4 @@
-package newjeans.bunnies.auth.state
+package newjeans.bunnies.auth.state.login
 
 data class LoginState(
     val isSuccess: Boolean = false,
