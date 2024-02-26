@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,6 +34,7 @@ import newjeans.bunnies.auth.presentation.SignupScreen
 
 import newjeans.bunnies.auth.presentation.navigation.NavigationRoute
 import newjeans.bunnies.auth.state.signup.PhoneNumberCertificationState
+import newjeans.bunnies.auth.viewmodel.AuthViewModel
 import newjeans.bunnies.auth.viewmodel.SignupViewModel
 import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.main.MainActivity
@@ -49,6 +51,7 @@ class AuthActivity : ComponentActivity() {
 
     private val userViewModel: UserViewModel by viewModels()
     private val signupViewModel: SignupViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
     private lateinit var auth: FirebaseAuth
 
@@ -84,7 +87,12 @@ class AuthActivity : ComponentActivity() {
                 // This callback is invoked in an invalid request for verification is made,
                 // for instance if the the phone number format is not valid.
                 CoroutineScope(Dispatchers.IO).launch {
-                    signupViewModel.phoneNumberCertificationState.emit(PhoneNumberCertificationState(false, e.message.toString(), ))
+                    signupViewModel.phoneNumberCertificationState.emit(
+                        PhoneNumberCertificationState(
+                            false,
+                            e.message.toString(),
+                        )
+                    )
                 }
                 Log.w(TAG, "onVerificationFailed", e)
 
@@ -104,7 +112,11 @@ class AuthActivity : ComponentActivity() {
                 token: PhoneAuthProvider.ForceResendingToken,
             ) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    signupViewModel.phoneNumberCertificationState.emit(PhoneNumberCertificationState(true))
+                    signupViewModel.phoneNumberCertificationState.emit(
+                        PhoneNumberCertificationState(
+                            true
+                        )
+                    )
                 }
                 // The SMS verification code has been sent to the provided phone number, we
                 // now need to ask the user to enter the code and then construct a credential
@@ -128,7 +140,7 @@ class AuthActivity : ComponentActivity() {
             ) {
                 composable(NavigationRoute.loginRoute) {
                     LoginScreen(
-                        onNavigateToSignup = { navController.navigate(NavigationRoute.signupRoute) },
+                        onNavigateToSignup = { authViewModel.checkSupport() },
                         toMain = { nextActivity() },
                         prefs = prefs
                     )
@@ -139,8 +151,15 @@ class AuthActivity : ComponentActivity() {
                         context = this@AuthActivity,
                         auth = auth,
                         callbacks = callbacks,
-                        viewModel = signupViewModel
+                        signupViewModel = signupViewModel,
+                        authViewModel = authViewModel
                     )
+                }
+            }
+            LaunchedEffect(authViewModel.checkSupportState) {
+                authViewModel.checkSupportState.collect {
+                    if(it.isSuccess)
+                        navController.navigate(NavigationRoute.signupRoute)
                 }
             }
         }

@@ -3,6 +3,7 @@ package newjeans.bunnies.network.auth
 
 import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
 import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
+import newjeans.bunnies.network.auth.dto.response.CheckSupportResponseDto
 import newjeans.bunnies.network.auth.dto.response.LoginResponseDto
 import newjeans.bunnies.network.auth.dto.response.RefreshResponseDto
 import newjeans.bunnies.network.auth.dto.response.SignupResponseDto
@@ -43,4 +44,7 @@ interface AuthApi {
     suspend fun checkPhoneNumber(
         @Query("phonenumber") phonenumber: String
     ): StatusResponseDto
+
+    @GET("/api/user/support")
+    suspend fun checkSupport(): CheckSupportResponseDto
 }

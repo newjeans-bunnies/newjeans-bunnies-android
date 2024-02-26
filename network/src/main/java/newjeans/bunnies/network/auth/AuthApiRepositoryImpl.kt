@@ -3,6 +3,7 @@ package newjeans.bunnies.network.auth
 
 import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
 import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
+import newjeans.bunnies.network.auth.dto.response.CheckSupportResponseDto
 import newjeans.bunnies.network.auth.dto.response.LoginResponseDto
 import newjeans.bunnies.network.auth.dto.response.RefreshResponseDto
 import newjeans.bunnies.network.auth.dto.response.SignupResponseDto
@@ -22,7 +23,7 @@ class AuthApiRepositoryImpl @Inject constructor(
         return authApi.signup(signupRequestDto)
     }
 
-    override suspend fun refresh(refreshToken: String,accessToken: String): RefreshResponseDto {
+    override suspend fun refresh(refreshToken: String, accessToken: String): RefreshResponseDto {
         return authApi.refresh(refreshToken, accessToken)
     }
 
@@ -32,6 +33,10 @@ class AuthApiRepositoryImpl @Inject constructor(
 
     override suspend fun checkPhoneNumber(phoneNumber: String): StatusResponseDto {
         return authApi.checkPhoneNumber(phoneNumber)
+    }
+
+    override suspend fun checkSupport(): CheckSupportResponseDto {
+        return authApi.checkSupport()
     }
 
 
