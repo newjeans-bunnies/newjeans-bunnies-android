@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,9 +38,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import newjeans.bunnies.auth.AuthActivity
 
 import newjeans.bunnies.auth.Constant.numberPattern
@@ -55,6 +62,7 @@ import newjeans.bunnies.auth.presentation.ui.MainButton
 import newjeans.bunnies.auth.presentation.ui.PasswordEditText
 import newjeans.bunnies.auth.presentation.ui.PhoneNumberEditTextEndButton
 import newjeans.bunnies.auth.presentation.ui.SelectCountryRadioButton
+import newjeans.bunnies.auth.state.signup.PhoneNumberCertificationState
 import newjeans.bunnies.auth.utils.MaskNumberVisualTransformation
 import newjeans.bunnies.auth.viewmodel.SignupViewModel
 import newjeans.bunnies.designsystem.R
@@ -96,12 +104,12 @@ object Validator {
 @Composable
 fun SignupScreen(
     onNavigateToLogin: () -> Unit,
-    viewModel: SignupViewModel = hiltViewModel(),
+    viewModel: SignupViewModel,
     context: AuthActivity,
     auth: FirebaseAuth,
-    storedVerificationId: String?,
     callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
 ) {
+    val verificationId by viewModel.verificationId.observeAsState()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -122,8 +130,9 @@ fun SignupScreen(
                     )
                 },
                 certificationNumberEvent = {
-                    verifyPhoneNumberWithCode(storedVerificationId, it)
-                }
+                    verifyPhoneNumberWithCode(verificationId, it, context, auth, viewModel)
+                },
+                viewModel = viewModel
             )
             CountryUI(viewModel)
             Spacer(modifier = Modifier.height(35.dp))
@@ -143,9 +152,53 @@ fun SignupScreen(
 
 }
 
-private fun verifyPhoneNumberWithCode(verificationId: String?, code: String): PhoneAuthCredential {
+private fun verifyPhoneNumberWithCode(
+    verificationId: String?,
+    code: String,
+    context: AuthActivity,
+    auth: FirebaseAuth,
+    viewModel: SignupViewModel
+) {
     // [START verify_with_code]
-    return PhoneAuthProvider.getCredential(verificationId!!, code)
+    try {
+        val credential = PhoneAuthProvider.getCredential(verificationId!!, code)
+        signInWithPhoneAuthCredential(credential, context, auth, viewModel)
+    } catch (e: Exception) {
+        Log.d(TAG, e.message.toString())
+    }
+}
+
+private fun signInWithPhoneAuthCredential(
+    credential: PhoneAuthCredential,
+    context: AuthActivity,
+    auth: FirebaseAuth,
+    viewModel: SignupViewModel
+) {
+    auth.signInWithCredential(credential)
+        .addOnCompleteListener(context) { task ->
+            if (task.isSuccessful) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d(TAG, "signInWithCredential:success")
+                CoroutineScope(Dispatchers.IO).launch {
+                    viewModel.phoneNumberCertificationState.emit(
+                        PhoneNumberCertificationState(
+                            false,
+                            "",
+                            "확인됨"
+                        )
+                    )
+                }
+                val user = task.result?.user
+
+            } else {
+                // Sign in failed, display a message and update the UI
+                Log.w(TAG, "signInWithCredential:failure", task.exception)
+                if (task.exception is FirebaseAuthInvalidCredentialsException) {
+                    // The verification code entered was invalid
+                }
+                // Update UI
+            }
+        }
 }
 
 private fun startPhoneNumberVerification(
@@ -216,8 +269,6 @@ fun PasswordUI(
     var password by remember { mutableStateOf("") }
 
 
-
-
     EditTextLabel(text = "비밀번호")
     Spacer(modifier = Modifier.height(10.dp))
     PasswordEditText(hint = "비밀번호", passwordOnValueChange = {
@@ -229,7 +280,10 @@ fun PasswordUI(
     })
     if (passwordPattern(password)) {
         passwordState =
-            if (password != passwordCheck && password.isNotEmpty() && passwordCheck.isNotEmpty()) {
+            if (passwordPattern(password) && passwordCheck.isEmpty()) {
+                StatusMessage("비밀번호 확인을 적어주세요.", true)
+                false
+            } else if (password != passwordCheck && password.isNotEmpty() && passwordCheck.isNotEmpty()) {
                 StatusMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.", true)
                 false
             } else if (password == passwordCheck && password.isNotEmpty() && passwordCheck.isNotEmpty()) {
@@ -250,38 +304,77 @@ fun PasswordUI(
 
 @Composable
 fun PhoneNumberUI(
-    viewModel: SignupViewModel = hiltViewModel(),
+    viewModel: SignupViewModel,
     phoneNumberEvent: (String) -> Unit,
     certificationNumberEvent: (String) -> Unit
 ) {
     var state: Boolean? by remember { mutableStateOf(null) }
+
+    var phoneNumberButtonText by remember { mutableStateOf("인증번호 받기") }
+    var phoneNumberButtonState by remember { mutableStateOf(true) }
+
+    var certificationNumberButtonState by remember { mutableStateOf(false) }
+    var certificationNumberButtonText by remember { mutableStateOf("확인") }
 
     EditTextLabel(text = "전화번호")
     Spacer(modifier = Modifier.height(10.dp))
     PhoneNumberEditTextEndButton(
         hint = "전화번호", event = {
             viewModel.checkPhoneNumber(it)
-        }, buttonText = "인증번호 받기", maxValueLength = phoneNumberMaxCharacterCount
+        }, buttonText = phoneNumberButtonText,
+        maxValueLength = phoneNumberMaxCharacterCount,
+        buttonState = phoneNumberButtonState
     )
     Spacer(modifier = Modifier.height(10.dp))
     CertificationNumberEditTextEndButton(
         hint = "인증번호", event = {
             certificationNumberEvent(it)
-        }, buttonText = "확인", maxValueLength = certificationNumberMaxCharacterCount
+        }, buttonText = certificationNumberButtonText,
+        maxValueLength = certificationNumberMaxCharacterCount,
+        buttonState = certificationNumberButtonState
     )
-    if (state == true) {
-        StatusMessage(message = "", errorStatus = false)
-    } else if (state == false) {
-        StatusMessage(message = "사용 중인 전화번호입니다.", errorStatus = true)
-    } else {
-        StatusMessage(message = "", errorStatus = false)
-    }
 
+    when (state) {
+        true -> StatusMessage(message = "", errorStatus = false)
+        false -> StatusMessage(message = "사용 중인 전화번호입니다.", errorStatus = true)
+        else -> StatusMessage(message = "", errorStatus = false)
+    }
 
     LaunchedEffect(viewModel.phoneNumberCheckState) {
         viewModel.phoneNumberCheckState.collect {
             state = it.isSuccess
             if (state == true) phoneNumberEvent(it.value)
+        }
+    }
+
+    LaunchedEffect(viewModel.phoneNumberCertificationState) {
+        viewModel.phoneNumberCertificationState.collect {
+            if (it.isSuccess) {
+                //전화번호 전송 했을때
+                launch {
+                    phoneNumberButtonState = false
+                    phoneNumberButtonText = "전송됨"
+
+                    certificationNumberButtonState = true
+                    certificationNumberButtonText = "확인"
+                    delay(60000)
+                    viewModel.phoneNumberCertificationState.emit(PhoneNumberCertificationState(false))
+                }
+            } else if (it.value == "확인됨") {
+                //전화번호 인증 완료 했을때
+                phoneNumberButtonState = true
+                phoneNumberButtonText = "인증 취소하기"
+
+                certificationNumberButtonState = false
+                certificationNumberButtonText = "인증됨"
+            } else {
+                //인증 하기전
+                phoneNumberButtonState = true
+                phoneNumberButtonText = "인증번호 받기"
+
+                certificationNumberButtonState = false
+                certificationNumberButtonText = "확인"
+            }
         }
     }
 }

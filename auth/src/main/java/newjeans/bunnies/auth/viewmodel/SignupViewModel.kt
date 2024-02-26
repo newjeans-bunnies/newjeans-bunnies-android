@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 import kotlinx.coroutines.launch
+import newjeans.bunnies.auth.state.signup.PhoneNumberCertificationState
 import newjeans.bunnies.auth.state.signup.PhoneNumberCheckState
 import newjeans.bunnies.auth.state.signup.SignupState
 import newjeans.bunnies.auth.state.signup.UserIdCheckState
@@ -41,6 +42,16 @@ class SignupViewModel @Inject constructor(
     private var _userIdCheckState = MutableSharedFlow<UserIdCheckState>()
     val userIdCheckState: SharedFlow<UserIdCheckState> = _userIdCheckState
 
+
+    private val _verificationId = MutableLiveData<String>()
+    val verificationId: LiveData<String> = _verificationId
+
+    val phoneNumberCertificationState = MutableSharedFlow<PhoneNumberCertificationState>()
+
+    fun verificationId(verificationId: String){
+        _verificationId.value = verificationId
+    }
+
     //아이디
     private val _userId = MutableLiveData("")
     val userId: LiveData<String>
@@ -65,18 +76,6 @@ class SignupViewModel @Inject constructor(
     private val _birth = MutableLiveData("")
     val birth: LiveData<String>
         get() = _birth
-
-    fun userId(userId: String) {
-        _userId.value = userId
-    }
-
-    fun password(password: String) {
-        _password.value = password
-    }
-
-    fun birth(birth: String) {
-        _birth.value = birth
-    }
 
 
     fun checkUser(userId: String) {
