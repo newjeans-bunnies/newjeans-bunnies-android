@@ -14,24 +14,26 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import newjeans.bunnies.auth.presentation.LoginScreen
 import newjeans.bunnies.auth.presentation.SignupScreen
 
 import newjeans.bunnies.auth.presentation.navigation.NavigationRoute
+import newjeans.bunnies.auth.state.signup.PhoneNumberCertificationState
+import newjeans.bunnies.auth.viewmodel.SignupViewModel
 import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.main.MainActivity
 import newjeans.bunnies.main.viewmodel.UserViewModel
@@ -46,6 +48,7 @@ class AuthActivity : ComponentActivity() {
     }
 
     private val userViewModel: UserViewModel by viewModels()
+    private val signupViewModel: SignupViewModel by viewModels()
 
     private lateinit var auth: FirebaseAuth
 
@@ -75,12 +78,14 @@ class AuthActivity : ComponentActivity() {
                 //     detect the incoming verification SMS and perform verification without
                 //     user action.
                 Log.d(TAG, "onVerificationCompleted:$credential")
-                signInWithPhoneAuthCredential(credential)
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
                 // This callback is invoked in an invalid request for verification is made,
                 // for instance if the the phone number format is not valid.
+                CoroutineScope(Dispatchers.IO).launch {
+                    signupViewModel.phoneNumberCertificationState.emit(PhoneNumberCertificationState(false, e.message.toString(), ))
+                }
                 Log.w(TAG, "onVerificationFailed", e)
 
                 if (e is FirebaseAuthInvalidCredentialsException) {
@@ -98,17 +103,21 @@ class AuthActivity : ComponentActivity() {
                 verificationId: String,
                 token: PhoneAuthProvider.ForceResendingToken,
             ) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    signupViewModel.phoneNumberCertificationState.emit(PhoneNumberCertificationState(true))
+                }
                 // The SMS verification code has been sent to the provided phone number, we
                 // now need to ask the user to enter the code and then construct a credential
                 // by combining the code with a verification ID.
                 Log.d(TAG, "onCodeSent:$verificationId")
+
+                signupViewModel.verificationId(verificationId)
 
                 // Save verification ID and resending token so we can use them later
                 storedVerificationId = verificationId
                 resendToken = token
             }
         }
-
 
 
         setContent {
@@ -129,32 +138,13 @@ class AuthActivity : ComponentActivity() {
                         onNavigateToLogin = { navController.navigate(NavigationRoute.loginRoute) },
                         context = this@AuthActivity,
                         auth = auth,
-                        storedVerificationId = storedVerificationId,
-                        callbacks = callbacks
+                        callbacks = callbacks,
+                        viewModel = signupViewModel
                     )
                 }
             }
         }
     }
-
-    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInWithCredential:success")
-                    val user = task.result?.user
-                } else {
-                    // Sign in failed, display a message and update the UI
-                    Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    if (task.exception is FirebaseAuthInvalidCredentialsException) {
-                        // The verification code entered was invalid
-                    }
-                    // Update UI
-                }
-            }
-    }
-
 
 
     private fun nextActivity() {
