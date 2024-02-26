@@ -11,7 +11,7 @@ import newjeans.bunnies.designsystem.R
 
 @Composable
 fun AppIconImage() {
-    val image: Painter = painterResource(id = R.drawable.main_image)
+    val image: Painter = painterResource(id = R.drawable.ic_main)
     Image(
         painter = image, contentDescription = "", modifier = Modifier.padding(
             start = 110.dp, end = 110.dp, top = 60.dp, bottom = 60.dp
