@@ -2,6 +2,7 @@ package newjeans.bunnies.auth.presentation
 
 
 import android.util.Log
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,12 +37,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import newjeans.bunnies.auth.Constant
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import newjeans.bunnies.auth.AuthActivity
+
 import newjeans.bunnies.auth.Constant.numberPattern
 import newjeans.bunnies.auth.Constant.passwordPattern
-
+import newjeans.bunnies.auth.presentation.Validator.changeToInternationalPhoneNumber
+import newjeans.bunnies.auth.presentation.Validator.dateFormatter
 import newjeans.bunnies.auth.presentation.ui.CertificationNumberEditTextEndButton
 import newjeans.bunnies.auth.presentation.ui.CheckBox
 import newjeans.bunnies.auth.presentation.ui.IdEditTextEndButton
@@ -60,21 +63,45 @@ import newjeans.bunnies.designsystem.theme.TextRule.birthMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.TextRule.certificationNumberMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.TextRule.phoneNumberMaxCharacterCount
 import newjeans.bunnies.designsystem.theme.authText
-import java.time.DateTimeException
+
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 
 
 private const val TAG = "SignupScreen"
 
+
+object Validator {
+
+    val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyMMdd")
+
+    fun isValidDateOfBirth(date: String): Boolean {
+        return try {
+            val localDate = LocalDate.parse(date, dateFormatter)
+            dateFormatter.format(localDate).equals(date)
+        } catch (e: Exception) {
+            Log.d(TAG, e.message.toString())
+            false
+        }
+    }
+
+    fun changeToInternationalPhoneNumber(phoneNumber: String): String {
+        var phoneEdit = phoneNumber.substring(3)
+        phoneEdit = "+8210$phoneEdit"
+        return phoneEdit
+    }
+}
+
 @Composable
 fun SignupScreen(
     onNavigateToLogin: () -> Unit,
-    phoneNumberVerification: (String) -> Unit,
     viewModel: SignupViewModel = hiltViewModel(),
+    context: AuthActivity,
+    auth: FirebaseAuth,
+    storedVerificationId: String?,
+    callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
 ) {
-    val auth: FirebaseAuth = Firebase.auth
-    auth.setLanguageCode("kr")
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -87,8 +114,17 @@ fun SignupScreen(
         ) {
             IdUI(viewModel)
             PasswordUI(viewModel)
-            PhoneNumberUI(phoneNumberVerification = phoneNumberVerification)
-            Spacer(modifier = Modifier.height(35.dp))
+            PhoneNumberUI(
+                phoneNumberEvent = {
+                    startPhoneNumberVerification(
+                        changeToInternationalPhoneNumber(it),
+                        context, auth, callbacks
+                    )
+                },
+                certificationNumberEvent = {
+                    verifyPhoneNumberWithCode(storedVerificationId, it)
+                }
+            )
             CountryUI(viewModel)
             Spacer(modifier = Modifier.height(35.dp))
             BirthUI(viewModel)
@@ -106,6 +142,29 @@ fun SignupScreen(
     }
 
 }
+
+private fun verifyPhoneNumberWithCode(verificationId: String?, code: String): PhoneAuthCredential {
+    // [START verify_with_code]
+    return PhoneAuthProvider.getCredential(verificationId!!, code)
+}
+
+private fun startPhoneNumberVerification(
+    phoneNumber: String,
+    context: AuthActivity,
+    auth: FirebaseAuth,
+    callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
+) {
+    // [START start_phone_auth]
+    val options = PhoneAuthOptions.newBuilder(auth)
+        .setPhoneNumber(phoneNumber) // Phone number to verify
+        .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+        .setActivity(context) // Activity (for callback binding)
+        .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
+        .build()
+    PhoneAuthProvider.verifyPhoneNumber(options)
+    // [END start_phone_auth]
+}
+
 
 @Composable
 fun IdUI(
@@ -192,8 +251,11 @@ fun PasswordUI(
 @Composable
 fun PhoneNumberUI(
     viewModel: SignupViewModel = hiltViewModel(),
-    phoneNumberVerification: (String) -> Unit
+    phoneNumberEvent: (String) -> Unit,
+    certificationNumberEvent: (String) -> Unit
 ) {
+    var state: Boolean? by remember { mutableStateOf(null) }
+
     EditTextLabel(text = "전화번호")
     Spacer(modifier = Modifier.height(10.dp))
     PhoneNumberEditTextEndButton(
@@ -204,13 +266,22 @@ fun PhoneNumberUI(
     Spacer(modifier = Modifier.height(10.dp))
     CertificationNumberEditTextEndButton(
         hint = "인증번호", event = {
-
+            certificationNumberEvent(it)
         }, buttonText = "확인", maxValueLength = certificationNumberMaxCharacterCount
     )
+    if (state == true) {
+        StatusMessage(message = "", errorStatus = false)
+    } else if (state == false) {
+        StatusMessage(message = "사용 중인 전화번호입니다.", errorStatus = true)
+    } else {
+        StatusMessage(message = "", errorStatus = false)
+    }
+
 
     LaunchedEffect(viewModel.phoneNumberCheckState) {
         viewModel.phoneNumberCheckState.collect {
-            if (it.isSuccess) phoneNumberVerification(it.value)
+            state = it.isSuccess
+            if (state == true) phoneNumberEvent(it.value)
         }
     }
 }
@@ -226,11 +297,8 @@ fun BirthUI(
     Spacer(modifier = Modifier.height(10.dp))
     SelectBirth { birth = it }
     if (birth.length == 8) {
-        val year = birth.substring(0 until 4).toInt()
-        val month = birth.substring(5 until 6).toInt()
-        val day = birth.substring(7 until 8).toInt()
-        birthState = if (checkBirth(year, month, day)) {
-            if (LocalDate.of(year, month, day) < LocalDate.now()) {
+        birthState = if (Validator.isValidDateOfBirth(birth)) {
+            if (LocalDate.parse(birth, dateFormatter) < LocalDate.now()) {
                 StatusMessage("", false)
                 true
             } else {
@@ -242,19 +310,10 @@ fun BirthUI(
             false
         }
     } else {
-        StatusMessage("", true)
-        birthState = false
+        StatusMessage("", false)
     }
 }
 
-private fun checkBirth(year: Int, month: Int, day: Int): Boolean {
-    try {
-        LocalDate.of(year, month, day)
-    } catch (e: DateTimeException) {
-        return false
-    }
-    return true
-}
 
 @Composable
 fun CountryUI(
@@ -264,6 +323,7 @@ fun CountryUI(
     Spacer(modifier = Modifier.height(10.dp))
     SelectCountryRadioButton(listOf("KR", "JP", "CN", "US"))
 }
+
 
 //Top App bar
 @Composable
@@ -301,6 +361,20 @@ fun SignupAppBar(
         }
     }
 }
+
+
+//상태 메시지
+@Composable
+fun StatusMessage(message: String, errorStatus: Boolean) {
+    Row(
+        modifier = Modifier
+            .padding(start = 40.dp, top = 5.dp)
+            .fillMaxWidth(),
+    ) {
+        StatusMessageText(message, errorStatus)
+    }
+}
+
 
 fun signup(signupViewModel: SignupViewModel) {
     signupViewModel.signup()
@@ -364,17 +438,6 @@ fun ConditionsOfUse(
     }
 }
 
-
-@Composable
-fun StatusMessage(message: String, errorStatus: Boolean) {
-    Row(
-        modifier = Modifier
-            .padding(start = 40.dp, top = 5.dp)
-            .fillMaxWidth(),
-    ) {
-        StatusMessageText(message, errorStatus)
-    }
-}
 
 @Composable
 fun SelectBirth(

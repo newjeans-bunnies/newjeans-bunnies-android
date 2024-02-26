@@ -35,7 +35,6 @@ import newjeans.bunnies.auth.presentation.navigation.NavigationRoute
 import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.main.MainActivity
 import newjeans.bunnies.main.viewmodel.UserViewModel
-import java.util.concurrent.TimeUnit
 
 
 @AndroidEntryPoint
@@ -47,9 +46,12 @@ class AuthActivity : ComponentActivity() {
     }
 
     private val userViewModel: UserViewModel by viewModels()
+
     private lateinit var auth: FirebaseAuth
 
+
     private var storedVerificationId: String? = ""
+
     private lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
     private lateinit var callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
 
@@ -57,8 +59,11 @@ class AuthActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        prefs = PreferenceManager(this)
         auth = Firebase.auth
+        auth.setLanguageCode("kr")
+
+
+        prefs = PreferenceManager(this)
 
         callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
@@ -105,6 +110,7 @@ class AuthActivity : ComponentActivity() {
         }
 
 
+
         setContent {
             val navController = rememberNavController()
             NavHost(
@@ -121,39 +127,14 @@ class AuthActivity : ComponentActivity() {
                 composable(NavigationRoute.signupRoute) {
                     SignupScreen(
                         onNavigateToLogin = { navController.navigate(NavigationRoute.loginRoute) },
-                        phoneNumberVerification = {
-                            startPhoneNumberVerification(changeToInternationalPhoneNumber(it))
-                        }
+                        context = this@AuthActivity,
+                        auth = auth,
+                        storedVerificationId = storedVerificationId,
+                        callbacks = callbacks
                     )
                 }
             }
         }
-    }
-
-    private fun changeToInternationalPhoneNumber(phoneNumber: String) : String {
-        var phoneEdit = phoneNumber.substring(3)
-        phoneEdit = "+8210$phoneEdit"
-        return phoneEdit
-    }
-
-//    private fun
-
-    private fun startPhoneNumberVerification(phoneNumber: String) {
-        // [START start_phone_auth]
-        val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(phoneNumber) // Phone number to verify
-            .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
-            .setActivity(this) // Activity (for callback binding)
-            .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
-            .build()
-        PhoneAuthProvider.verifyPhoneNumber(options)
-        // [END start_phone_auth]
-    }
-
-    private fun verifyPhoneNumberWithCode(verificationId: String?, code: String) {
-        // [START verify_with_code]
-        val credential = PhoneAuthProvider.getCredential(verificationId!!, code)
-        // [END verify_with_code]
     }
 
     private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
@@ -162,7 +143,6 @@ class AuthActivity : ComponentActivity() {
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithCredential:success")
-
                     val user = task.result?.user
                 } else {
                     // Sign in failed, display a message and update the UI
