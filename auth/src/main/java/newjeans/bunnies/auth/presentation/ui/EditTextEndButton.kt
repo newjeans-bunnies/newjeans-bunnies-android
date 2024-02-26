@@ -117,6 +117,7 @@ fun PhoneNumberEditTextEndButton(
     event: (String) -> Unit,
     buttonText: String,
     maxValueLength: Int,
+    buttonState: Boolean
 ) {
     val isFocused = remember { mutableStateOf(false) }
     Row(
@@ -160,9 +161,8 @@ fun PhoneNumberEditTextEndButton(
             modifier = Modifier
                 .clickable(
                     onClick = {
-                        if(isValidPhoneNumber(phoneNumber)){
+                        if(isValidPhoneNumber(phoneNumber) && buttonState)
                             event(phoneNumber)
-                        }
                     }, interactionSource = remember {
                         MutableInteractionSource()
                     }, indication = null
@@ -190,6 +190,7 @@ fun CertificationNumberEditTextEndButton(
     event: (String) -> Unit,
     buttonText: String,
     maxValueLength: Int,
+    buttonState: Boolean
 ) {
     val isFocused = remember { mutableStateOf(false) }
 
@@ -234,7 +235,8 @@ fun CertificationNumberEditTextEndButton(
             modifier = Modifier
                 .clickable(
                     onClick = {
-                        event(certificationNumber)
+                        if(buttonState)
+                            event(certificationNumber)
                     }, interactionSource = remember {
                         MutableInteractionSource()
                     }, indication = null
