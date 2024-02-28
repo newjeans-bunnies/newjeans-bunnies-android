@@ -53,7 +53,6 @@ dependencies {
     implementation(project(":designsystem"))
     implementation(project(":main"))
 
-
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
 
@@ -61,18 +60,19 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.navigation)
-    implementation(libs.androidx.runtime.livedata)
-
-    debugImplementation(libs.androidx.ui.tooling)
-
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling.preview)
+
+    implementation(libs.androidx.runtime.livedata)
+
+    implementation(libs.androidx.core.ktx)
+
+    debugImplementation(libs.androidx.ui.tooling)
 
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 }

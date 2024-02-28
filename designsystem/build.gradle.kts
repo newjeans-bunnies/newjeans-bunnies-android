@@ -12,6 +12,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    defaultConfig {
+        minSdk = 26
+    }
 
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.2"

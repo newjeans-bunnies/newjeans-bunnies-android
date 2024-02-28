@@ -42,48 +42,43 @@ android {
 
 dependencies {
 
-    constraints {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21") {
-            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
-        }
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21") {
-            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
-        }
-    }
 
     implementation(project(":di"))
     implementation(project(":network"))
     implementation(project(":database"))
     implementation(project(":designsystem"))
+    implementation(project(":auth"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.navigation)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.compose.ui.tooling.preview)
 
+    debugImplementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.ui.tooling)
 
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    debugImplementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.lifecycle.viewModelCompose)
+
+    implementation(libs.androidx.navigation)
+    implementation(libs.androidx.material)
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
+
+    implementation(libs.androidx.appcompat)
 
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.26.2-beta")
     implementation("androidx.compose.foundation:foundation:1.6.0")
+
     implementation(libs.glide)
 
-    implementation(libs.androidx.lifecycle.viewModelCompose)
+    implementation(libs.material)
 
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
 
-    implementation(libs.androidx.navigation)
-    implementation(libs.androidx.material)
-
     implementation(libs.coil.kt)
-
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
 }

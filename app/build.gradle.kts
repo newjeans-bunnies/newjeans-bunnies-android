@@ -1,8 +1,8 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
 }
@@ -57,29 +57,24 @@ android {
         implementation(project(":database"))
         implementation(project(":network"))
         implementation(project(":auth"))
-        implementation(project(":main"))
         implementation(project(":di"))
-
-        implementation("androidx.core:core-splashscreen:1.0.1")
-
-
 
         implementation(platform(libs.androidx.compose.bom))
         implementation(libs.androidx.compose.material3)
         implementation(libs.androidx.compose.ui)
         implementation(libs.androidx.compose.navigation)
+        implementation(libs.androidx.compose.ui.tooling.preview)
+        debugImplementation(libs.androidx.compose.ui.tooling.preview)
 
         debugImplementation(libs.androidx.ui.tooling)
 
-        implementation(libs.androidx.compose.ui.tooling.preview)
-        debugImplementation(libs.androidx.compose.ui.tooling.preview)
+        implementation(libs.androidx.core.ktx)
 
         implementation(libs.hilt.android)
         kapt(libs.hilt.compiler)
 
         implementation(libs.androidx.material)
 
-        implementation(libs.androidx.core.ktx)
         implementation(libs.androidx.appcompat)
         implementation(libs.material)
     }
