@@ -3,8 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
-
     <application
         android:name=".app.NewJeansBunniesApplication"
         android:allowBackup="true"
@@ -17,6 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Newjeansbunnies"
         tools:targetApi="34">
+        <activity
+            android:name=".app.SplashActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@style/Theme.Newjeansbunnies.Starting">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
     </application>
 

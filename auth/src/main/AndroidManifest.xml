@@ -10,8 +10,7 @@
             android:name=".AuthActivity"
             android:configChanges="uiMode"
             android:exported="true"
-            android:theme="@style/Theme.newjeansBunnies">
-
+            android:theme="@style/Theme.Newjeansbunnies">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -9,7 +9,7 @@
             android:name=".MainActivity"
             android:configChanges="uiMode"
             android:exported="true"
-            android:theme="@style/Theme.newjeansBunnies.Starting">
+            android:theme="@style/Theme.Newjeansbunnies">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
