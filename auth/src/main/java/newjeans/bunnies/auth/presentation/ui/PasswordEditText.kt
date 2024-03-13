@@ -1,16 +1,12 @@
 package newjeans.bunnies.auth.presentation.ui
 
 
-import android.util.Log
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,21 +22,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import newjeans.bunnies.auth.Constant
+import newjeans.bunnies.designsystem.theme.CustomColor
 
-import newjeans.bunnies.designsystem.theme.AuthEditTextColor
 import newjeans.bunnies.designsystem.theme.TextRule.passwordMaxCharacterCount
-import newjeans.bunnies.designsystem.theme.authText
+import newjeans.bunnies.designsystem.theme.CustomTextStyle
 
 
 @Composable
 fun PasswordEditText(
     hint: String,
-    passwordOnValueChange: (String) -> Unit
+    passwordOnValueChange: (String) -> Unit,
 ) {
     var isFocused by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
+
+    var passwordStatus: Boolean? by remember { mutableStateOf(null) }
+
+    if(password.isNotEmpty())
+        passwordStatus = Constant.passwordPattern(password)
+
     SelectionContainer {
         BasicTextField(value = password,
             onValueChange = {
@@ -56,11 +58,10 @@ fun PasswordEditText(
                 .onFocusChanged {
                     isFocused = it.isFocused
                 }
-                .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp)),
+                .background(CustomColor.LightGray, shape = RoundedCornerShape(size = 13.dp)),
             visualTransformation = PasswordVisualTransformation(),
-
-            textStyle = authText.bodyMedium,
-            maxLines = 1,
+            singleLine = true,
+            textStyle = CustomTextStyle.Title6,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password).copy(),
             decorationBox = { innerTextField ->
                 Row(
@@ -70,7 +71,7 @@ fun PasswordEditText(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (password.isEmpty() && !isFocused)
-                        Text(text = hint, style = authText.bodySmall)
+                        Text(text = hint, style = CustomTextStyle.Title6, color = CustomColor.Gray)
                     innerTextField()
                 }
             })

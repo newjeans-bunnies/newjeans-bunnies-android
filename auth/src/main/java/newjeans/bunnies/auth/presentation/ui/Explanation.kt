@@ -9,11 +9,6 @@ import newjeans.bunnies.designsystem.theme.CustomColor
 import newjeans.bunnies.designsystem.theme.CustomTextStyle
 
 @Composable
-fun EditTextLabel(text: String){
-    Text(
-        modifier = Modifier.padding(start = 30.dp),
-        text = text,
-        style = CustomTextStyle.TitleMedium,
-        color = CustomColor.LightBlack
-    )
+fun Explanation(text: String){
+    Text(text = text, color = CustomColor.Gray, style = CustomTextStyle.Title1, modifier = Modifier.padding(start = 35.dp, top = 5.dp))
 }

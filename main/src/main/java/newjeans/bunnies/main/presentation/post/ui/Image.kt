@@ -2,7 +2,6 @@ package newjeans.bunnies.main.presentation.post.ui
 
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -15,11 +14,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import newjeans.bunnies.network.post.dto.response.PostImageResponseDto
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Image(images: List<String>) {
+fun Image(images: List<PostImageResponseDto>) {
     val pagerState = rememberPagerState(pageCount = { images.size }, initialPage = 0)
 
     HorizontalPager(
@@ -29,7 +29,6 @@ fun Image(images: List<String>) {
         ) { idx ->
         AsyncImage(
             modifier = Modifier
-                .fillMaxSize()
                 .clip(RoundedCornerShape(20.dp)),
             model = ImageRequest.Builder(LocalContext.current).data(images[idx])
                 .build(),

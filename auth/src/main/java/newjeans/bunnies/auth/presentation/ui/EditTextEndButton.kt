@@ -27,17 +27,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+
 import newjeans.bunnies.auth.Constant.numberPattern
 import newjeans.bunnies.auth.utils.MaskNumberVisualTransformation
-
-import newjeans.bunnies.designsystem.theme.AuthButtonColor
-import newjeans.bunnies.designsystem.theme.AuthEditTextColor
-import newjeans.bunnies.designsystem.theme.authText
-
-
-private var id by mutableStateOf("")
-private var phoneNumber by mutableStateOf("")
-private var certificationNumber by mutableStateOf("")
+import newjeans.bunnies.designsystem.theme.CustomColor
+import newjeans.bunnies.designsystem.theme.CustomTextStyle
 
 
 @Composable
@@ -46,9 +40,12 @@ fun IdEditTextEndButton(
     event: (String) -> Unit,
     buttonText: String,
     maxValueLength: Int,
-    chageEvent: (String) -> Unit
+    chageEvent: (String) -> Unit,
 ) {
     val isFocused = remember { mutableStateOf(false) }
+    var id by remember {
+        mutableStateOf("")
+    }
 
     Row(
         modifier = Modifier
@@ -67,12 +64,12 @@ fun IdEditTextEndButton(
             modifier = Modifier
                 .weight(1F)
                 .height(50.dp)
-                .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp))
+                .background(CustomColor.LightGray, shape = RoundedCornerShape(size = 13.dp))
                 .onFocusChanged {
                     isFocused.value = it.isFocused
                 },
             visualTransformation = VisualTransformation.None,
-            textStyle = authText.bodyMedium,
+            textStyle = CustomTextStyle.Title6,
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
             decorationBox = { innerTextField ->
@@ -83,7 +80,7 @@ fun IdEditTextEndButton(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (id.isEmpty() && !isFocused.value)
-                        Text(text = hint, style = authText.bodySmall)
+                        Text(text = hint, style = CustomTextStyle.Title6, color = CustomColor.Gray)
                     innerTextField()
                 }
             })
@@ -100,12 +97,12 @@ fun IdEditTextEndButton(
                     }, indication = null
                 )
                 .size(width = 120.dp, height = 50.dp)
-                .background(AuthButtonColor, shape = RoundedCornerShape(size = 13.dp)),
+                .background(CustomColor.Button, shape = RoundedCornerShape(size = 13.dp)),
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
                 text = buttonText,
-                style = authText.labelMedium
+                style = CustomTextStyle.buttonText
             )
         }
     }
@@ -117,9 +114,11 @@ fun PhoneNumberEditTextEndButton(
     event: (String) -> Unit,
     buttonText: String,
     maxValueLength: Int,
-    buttonState: Boolean
+    buttonState: Boolean,
+    readOnly: Boolean
 ) {
     val isFocused = remember { mutableStateOf(false) }
+    var phoneNumber by remember { mutableStateOf("") }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,14 +133,15 @@ fun PhoneNumberEditTextEndButton(
             modifier = Modifier
                 .weight(1F)
                 .height(50.dp)
-                .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp))
+                .background(CustomColor.LightGray, shape = RoundedCornerShape(size = 13.dp))
                 .onFocusChanged {
                     isFocused.value = it.isFocused
                 },
             visualTransformation = MaskNumberVisualTransformation("000-0000-0000", '0'),
-            textStyle = authText.bodyMedium,
+            textStyle = CustomTextStyle.Title6,
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            readOnly = readOnly,
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
@@ -150,7 +150,7 @@ fun PhoneNumberEditTextEndButton(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (phoneNumber.isEmpty() && !isFocused.value)
-                        Text(text = hint, style = authText.bodySmall)
+                        Text(text = hint, style = CustomTextStyle.Title6, color = CustomColor.Gray)
                     innerTextField()
                 }
             })
@@ -161,19 +161,19 @@ fun PhoneNumberEditTextEndButton(
             modifier = Modifier
                 .clickable(
                     onClick = {
-                        if(isValidPhoneNumber(phoneNumber) && buttonState)
+                        if (isValidPhoneNumber(phoneNumber) && buttonState)
                             event(phoneNumber)
                     }, interactionSource = remember {
                         MutableInteractionSource()
                     }, indication = null
                 )
                 .size(width = 120.dp, height = 50.dp)
-                .background(AuthButtonColor, shape = RoundedCornerShape(size = 13.dp)),
+                .background(CustomColor.Button, shape = RoundedCornerShape(size = 13.dp)),
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
                 text = buttonText,
-                style = authText.labelMedium
+                style = CustomTextStyle.buttonText
             )
         }
     }
@@ -190,9 +190,11 @@ fun CertificationNumberEditTextEndButton(
     event: (String) -> Unit,
     buttonText: String,
     maxValueLength: Int,
-    buttonState: Boolean
+    buttonState: Boolean,
+    readOnly: Boolean
 ) {
-    val isFocused = remember { mutableStateOf(false) }
+    var isFocused by remember { mutableStateOf(false) }
+    var certificationNumber by remember { mutableStateOf("") }
 
     Row(
         modifier = Modifier
@@ -208,14 +210,15 @@ fun CertificationNumberEditTextEndButton(
             modifier = Modifier
                 .weight(1F)
                 .height(50.dp)
-                .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp))
+                .background(CustomColor.LightGray, shape = RoundedCornerShape(size = 13.dp))
                 .onFocusChanged {
-                    isFocused.value = it.isFocused
+                    isFocused = it.isFocused
                 },
             visualTransformation = VisualTransformation.None,
-            textStyle = authText.bodyMedium,
+            textStyle = CustomTextStyle.Title6,
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            readOnly = readOnly,
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
@@ -223,8 +226,8 @@ fun CertificationNumberEditTextEndButton(
                         .padding(start = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (certificationNumber.isEmpty() && !isFocused.value)
-                        Text(text = hint, style = authText.bodySmall)
+                    if (certificationNumber.isEmpty() && !isFocused)
+                        Text(text = hint, style = CustomTextStyle.Title6, color = CustomColor.Gray)
                     innerTextField()
                 }
             })
@@ -235,19 +238,19 @@ fun CertificationNumberEditTextEndButton(
             modifier = Modifier
                 .clickable(
                     onClick = {
-                        if(buttonState)
+                        if (buttonState)
                             event(certificationNumber)
                     }, interactionSource = remember {
                         MutableInteractionSource()
                     }, indication = null
                 )
                 .size(width = 120.dp, height = 50.dp)
-                .background(AuthButtonColor, shape = RoundedCornerShape(size = 13.dp)),
+                .background(CustomColor.Button, shape = RoundedCornerShape(size = 13.dp)),
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
                 text = buttonText,
-                style = authText.labelMedium
+                style = CustomTextStyle.buttonText
             )
         }
     }

@@ -15,9 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import newjeans.bunnies.designsystem.theme.AuthButtonColor
-
-import newjeans.bunnies.designsystem.theme.authText
+import newjeans.bunnies.designsystem.theme.CustomColor
+import newjeans.bunnies.designsystem.theme.CustomTextStyle
 
 @Composable
 fun MainButton(message: String, event: () -> Unit) {
@@ -30,12 +29,12 @@ fun MainButton(message: String, event: () -> Unit) {
                     MutableInteractionSource()
                 }, indication = null
             )
-            .background(AuthButtonColor, shape = RoundedCornerShape(size = 13.dp))
+            .background(CustomColor.Button, shape = RoundedCornerShape(size = 13.dp))
             .height(55.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = message, style = authText.titleMedium
+            text = message, style = CustomTextStyle.buttonText, color = CustomColor.DarkGray
         )
     }
 }
@@ -52,7 +51,7 @@ fun TextButton(message: String, event: () -> Unit) {
         contentAlignment = Alignment.Center
 
     ) {
-        Text(text = message, style = authText.labelMedium)
+        Text(text = message, style = CustomTextStyle.Title4, color = CustomColor.DarkGray)
     }
 
 }
@@ -66,5 +65,5 @@ fun MainButtonPreview() {
 @Composable
 @Preview
 fun TextButtonPreView() {
-    TextButton("로그인", {})
+    TextButton("계정 만들기", {})
 }
