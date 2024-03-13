@@ -1,16 +1,15 @@
 package newjeans.bunnies.network.auth
 
 
+import newjeans.bunnies.network.auth.dto.reqeust.CertificationVerifyRequestDto
 import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
-import newjeans.bunnies.network.auth.dto.reqeust.SignupReqeustDto
-import newjeans.bunnies.network.auth.dto.response.CheckSupportResponseDto
+import newjeans.bunnies.network.auth.dto.reqeust.SignupRequestDto
 import newjeans.bunnies.network.auth.dto.response.LoginResponseDto
 import newjeans.bunnies.network.auth.dto.response.RefreshResponseDto
 import newjeans.bunnies.network.auth.dto.response.SignupResponseDto
 import newjeans.bunnies.network.global.dto.response.StatusResponseDto
 
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -25,7 +24,7 @@ interface AuthApi {
 
     @POST("/api/auth/signup")
     suspend fun signup(
-        @Body signupRequestDto: SignupReqeustDto
+        @Body signupRequestDto: SignupRequestDto
     ): SignupResponseDto
 
     @PATCH("/api/auth/refresh")
@@ -34,17 +33,12 @@ interface AuthApi {
         @Header("access-token") accessToken: String,
     ): RefreshResponseDto
 
-    @GET("/api/user/check/userid")
-    suspend fun checkUserID(
-        @Query("userId") userId: String
+    @POST("/api/auth/phonenumber/verify")
+    suspend fun verify(@Body certificationVerifyRequestDto: CertificationVerifyRequestDto): StatusResponseDto
+
+    @POST("/api/auth/phonenumber")
+    suspend fun certification(
+        @Query("phonenumber") phoneNumber: String
     ): StatusResponseDto
 
-
-    @GET("/api/user/check/phonenumber")
-    suspend fun checkPhoneNumber(
-        @Query("phonenumber") phonenumber: String
-    ): StatusResponseDto
-
-    @GET("/api/user/support")
-    suspend fun checkSupport(): CheckSupportResponseDto
 }
