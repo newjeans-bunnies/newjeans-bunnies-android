@@ -2,135 +2,85 @@ package newjeans.bunnies.app
 
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
-
-import kotlinx.coroutines.launch
-
+import newjeans.bunnies.app.NewJeansBunniesApplication.Companion.prefs
+import newjeans.bunnies.app.viewmodel.SplashViewModel
 import newjeans.bunnies.auth.AuthActivity
-import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.main.MainActivity
-import newjeans.bunnies.main.viewmodel.UserViewModel
-
 
 @AndroidEntryPoint
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : ComponentActivity() {
 
-    private val splashViewModel: SplashViewModel by viewModels()
-    private val userViewModel: UserViewModel by viewModels()
+    private val viewModel: SplashViewModel by viewModels()
 
-    companion object {
-        lateinit var prefs: PreferenceManager
-        const val TAG = "SplashActivity"
-    }
+    private lateinit var mainActivityIntent: Intent
+    private lateinit var authActivityIntent: Intent
 
+    private lateinit var splashScreenState: MutableState<Boolean>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        prefs = PreferenceManager(this)
 
-        val authIntent = Intent(this, AuthActivity::class.java)
-        val mainIntent = Intent(this, MainActivity::class.java)
+        val splashScreen = installSplashScreen()
 
-        authIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        mainActivityIntent = Intent(this, MainActivity::class.java)
+        authActivityIntent = Intent(this, AuthActivity::class.java)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        authActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+
+        setContent {
+            splashScreenState = remember { mutableStateOf(true) }
+            splashScreen.setKeepOnScreenCondition { splashScreenState.value }
             if (prefs.autoLogin) {
-                splashViewModel.reissueToken(prefs.refreshToken, prefs.accessToken, prefs)
-                lifecycleScope.launch {
-                    splashViewModel.reissueTokenState.collect {
-                        if (it.isSuccess) {
-                            login(mainIntent, authIntent)
-                        }
-                        if (it.error.isNotEmpty()) {
-                            Log.d("자동 로그인", it.toString())
-                            logout(authIntent)
-                        }
+                viewModel.getUserDetailInformation(
+                    prefs = prefs, authorization = prefs.accessToken
+                )
+            } else {
+                authActivity()
+            }
+
+
+            LaunchedEffect(viewModel.reissueTokenState) {
+                viewModel.reissueTokenState.collect {
+                    if (it.error.isNotEmpty()) authActivity()
+                    if (it.isSuccess) {
+                        viewModel.getUserDetailInformation(
+                            prefs = prefs, authorization = prefs.accessToken
+                        )
                     }
                 }
-            } else {
-                logout(authIntent)
             }
-        } else {
-            setContent {
-                SplashScreen(authIntent, mainIntent, prefs)
-            }
-        }
-    }
 
-    @Composable
-    fun SplashScreen(authIntent: Intent, mainIntent: Intent, prefs: PreferenceManager) {
-        Box(
-            Modifier.fillMaxSize(), Alignment.Center
-        ) {
-            Image(
-                modifier = Modifier.width(150.dp),
-                painter = painterResource(id = newjeans.bunnies.designsystem.R.drawable.ic_main),
-                contentDescription = ""
-            )
-        }
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (prefs.autoLogin) {
-                splashViewModel.reissueToken(prefs.refreshToken, prefs.accessToken, prefs)
-                lifecycleScope.launch {
-                    splashViewModel.reissueTokenState.collect {
-                        if (it.isSuccess) {
-                            login(mainIntent, authIntent)
-                        }
-                        if (it.error.isNotEmpty()) {
-                            logout(authIntent)
-                        }
-                    }
-                }
-            } else {
-                logout(authIntent)
-            }
-        }, 1000)
-    }
-
-
-    private fun login(mainIntent: Intent, authIntent: Intent) {
-        userViewModel.getUserDetailInformation(prefs.accessToken, prefs)
-        lifecycleScope.launch {
-            userViewModel.getUserDetailInformationState.collect {
-                if (it.isSuccess) {
-                    startActivity(mainIntent)
-                    finish()
-                }
-                if (it.error.isNotEmpty()) {
-                    Log.d(TAG, it.error)
-                    logout(authIntent)
+            LaunchedEffect(viewModel.getUserDetailInformationState) {
+                viewModel.getUserDetailInformationState.collect {
+                    if (it.isSuccess) mainActivity()
+                    if (it.error.isNotEmpty()) authActivity()
                 }
             }
         }
     }
 
-    private fun logout(authIntent: Intent) {
-        prefs.deleteToken()
-        prefs.deleteUserData()
-        startActivity(authIntent)
+    private fun mainActivity() {
+        splashScreenState.value = false
+        startActivity(mainActivityIntent)
+        finish()
+    }
+
+    private fun authActivity() {
+        splashScreenState.value = false
+        startActivity(authActivityIntent)
         finish()
     }
 }
-
-
