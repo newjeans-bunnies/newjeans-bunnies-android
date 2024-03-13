@@ -5,7 +5,7 @@ object NavigationRoute {
     const val myInfoRoute = "myInfo"
     const val postRoute = "post"
     const val settingsRoute = "settings"
-    const val videoRoute = "setting"
+    const val videoRoute = "video"
     const val alarmRoute = "alarm"
     const val imageRoute = "image"
 }
