@@ -26,9 +26,6 @@ interface PostApi {
         @Body makePostRequestDto: MakePostRequestDto
     ): MakePostResponseDto
 
-
-
-
     //게시글 좋아요
     @POST("/api/post/good")
     suspend fun postGood(
@@ -37,24 +34,18 @@ interface PostApi {
         @Query("user-id") userId: String
     ): PostGoodResponseDto
 
-
-
     //게시글 사진 가져오기
     @GET("/api/post/image")
     suspend fun postImage(
         @Query("post-id") postId: String
     ): List<PostImageResponseDto>
 
-
-
-
-
-
     // 게시글 여러개 가져오기
     @GET("/api/post/basic-info")
     suspend fun listPostBasicInfo(
         @Query("date") date: String
     ): List<PostBasicInfoResponseDto>
+
     @GET("/api/post/detail")
     suspend fun listPostDetail(
         @Header("Authorization") authorization: String,
@@ -62,37 +53,30 @@ interface PostApi {
         @Query("userId") userId: String
     ): List<PostDetailResponseDto>
 
-
-
-
     // 특정 유저 게시글 가져오기
-    @GET("api/user/basic-info/{userId}")
+    @GET("api/post/user/basic-info/{userId}")
     suspend fun userPostBasicInfo(
         @Path("userId") userId: String,
         @Query("date") date: String
     ): List<PostBasicInfoResponseDto>
-    @GET("api/user/detail/{userId}")
+
+    @GET("api/post/user/detail/{userId}")
     suspend fun userPostDetail(
         @Path("userId") userId: String,
         @Query("date") date: String
     ): List<PostDetailResponseDto>
 
-
-
-
-
     //단일 게시글 가져오기
-    @GET("/api/basic-info/{uuid}")
+    @GET("/api/post/basic-info/{uuid}")
     suspend fun postBasicInfo(
         @Path(value = "uuid") uuid: String
     ): PostBasicInfoResponseDto
 
-    @GET("/api/detail/{uuid}")
+    @GET("/api/post/detail/{uuid}")
     suspend fun postDetail(
         @Header("Authorization") authorization: String,
         @Path(value = "uuid") uuid: String
     ): PostDetailResponseDto
-
 
     //게시글 삭제하기
     @DELETE("/api/post/delete")
