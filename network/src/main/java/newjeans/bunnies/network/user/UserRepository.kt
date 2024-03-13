@@ -1,13 +1,20 @@
 package newjeans.bunnies.network.user
 
+import newjeans.bunnies.network.auth.dto.response.CheckSupportResponseDto
+import newjeans.bunnies.network.global.dto.response.StatusResponseDto
 import newjeans.bunnies.network.user.dto.UserBasicDto
 import newjeans.bunnies.network.user.dto.UserDetailDto
 import newjeans.bunnies.network.user.dto.UserDto
+import newjeans.bunnies.network.user.dto.response.UserImageResponseDto
 
 interface UserRepository {
 
-    suspend fun getUserDetailInformation(authorization: String): UserDetailDto
-    suspend fun getUserBasicInformation(userId: String): UserBasicDto
-    suspend fun userUpdate(authorization: String, id: String, userDto: UserDto)
-    suspend fun deleteUser(authorization: String, userId: String)
+    suspend fun getUserDetails(authorization: String): UserDetailDto
+    suspend fun getUserBasicInfo(userId: String): UserBasicDto
+    suspend fun updateUser(authorization: String, id: String, userDto: UserDto)
+    suspend fun deleteUser(authorization: String, userId: String): StatusResponseDto
+    suspend fun checkUserId(userId: String): StatusResponseDto
+    suspend fun checkPhoneNumber(phoneNumber: String): StatusResponseDto
+    suspend fun checkSupport(): CheckSupportResponseDto
+    suspend fun getUserImage(userId: String): UserImageResponseDto
 }
