@@ -2,8 +2,6 @@ package newjeans.bunnies.main.viewmodel
 
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -13,8 +11,6 @@ import kotlinx.coroutines.flow.SharedFlow
 
 import kotlinx.coroutines.launch
 import newjeans.bunnies.data.PreferenceManager
-import newjeans.bunnies.main.MainActivity
-import newjeans.bunnies.main.data.UserData
 import newjeans.bunnies.main.presentation.post.state.UserDetailInformationState
 import newjeans.bunnies.main.state.ReissueTokenState
 import newjeans.bunnies.network.auth.AuthRepository
@@ -43,40 +39,10 @@ class UserViewModel @Inject constructor(
     private val _reissueTokenState = MutableSharedFlow<ReissueTokenState>()
     val reissueTokenState: SharedFlow<ReissueTokenState> = _reissueTokenState
 
-    fun getUserDetailInformation(authorization: String, prefs: PreferenceManager) {
-        viewModelScope.launch {
-            kotlin.runCatching {
-                userRepository.getUserDetailInformation("Bearer $authorization")
-            }.onSuccess {
-                Log.d(TAG, it.toString())
-                prefs.userId = it.id
-                prefs.userPhoneNumber = it.phoneNumber
-                prefs.userImage = it.imageUrl
-                _getUserDetailInformationState.emit(UserDetailInformationState(true, ""))
-            }.onFailure { e ->
-                Log.d(TAG, e.message.toString())
-                if (prefs.refreshToken.isNotEmpty()) {
-                    reissueToken(
-                        prefs.accessToken,
-                        prefs.refreshToken,
-                        prefs
-                    ) { getUserDetailInformation(authorization, prefs) }
-                } else {
-                    _getUserDetailInformationState.emit(
-                        UserDetailInformationState(
-                            false,
-                            e.message.toString()
-                        )
-                    )
-                }
-            }
-        }
-    }
-
     fun getUserBasicInformation(userId: String) {
         viewModelScope.launch {
             kotlin.runCatching {
-                userRepository.getUserBasicInformation(userId)
+                userRepository.getUserBasicInfo(userId)
             }.onSuccess {
 
             }.onFailure { e ->
@@ -88,7 +54,7 @@ class UserViewModel @Inject constructor(
     fun userUpdate(authorization: String, id: String, userDto: UserDto) {
         viewModelScope.launch {
             kotlin.runCatching {
-                userRepository.userUpdate("Bearer $authorization", id, userDto)
+                userRepository.updateUser("Bearer $authorization", id, userDto)
             }.onSuccess {
 
             }.onFailure { e ->
@@ -109,10 +75,15 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun reissueToken(accessToken: String, refreshToken: String, prefs: PreferenceManager, function: () -> Unit) {
+    fun reissueToken(
+        accessToken: String,
+        refreshToken: String,
+        prefs: PreferenceManager,
+        function: () -> Unit
+    ) {
         viewModelScope.launch {
             kotlin.runCatching {
-                authRepository.refresh(refreshToken, accessToken)
+                authRepository.reissueToken(refreshToken, accessToken)
             }.onSuccess {
                 prefs.accessToken = it.accessToken
                 prefs.expiredAt = it.expiredAt
@@ -125,4 +96,6 @@ class UserViewModel @Inject constructor(
             }
         }
     }
+
+
 }

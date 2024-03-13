@@ -4,7 +4,6 @@ package newjeans.bunnies.main.viewmodel
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -20,7 +19,6 @@ import newjeans.bunnies.network.auth.AuthRepository
 
 import newjeans.bunnies.network.post.PostRepository
 import newjeans.bunnies.network.post.dto.request.MakePostRequestDto
-import newjeans.bunnies.network.post.dto.response.PostBasicInfoResponseDto
 import newjeans.bunnies.network.post.dto.response.PostImageResponseDto
 import java.time.LocalDateTime
 
@@ -216,7 +214,7 @@ class PostViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             kotlin.runCatching {
-                authRepository.refresh(refreshToken, accessToken)
+                authRepository.reissueToken(refreshToken, accessToken)
             }.onSuccess {
                 prefs.accessToken = it.accessToken
                 prefs.expiredAt = it.expiredAt
