@@ -1,7 +1,6 @@
 package newjeans.bunnies.auth.presentation
 
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,23 +17,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
@@ -42,18 +37,12 @@ import newjeans.bunnies.auth.presentation.ui.AppIconImage
 import newjeans.bunnies.auth.presentation.ui.CheckBox
 import newjeans.bunnies.auth.presentation.ui.StatusMessageText
 import newjeans.bunnies.auth.presentation.ui.MainButton
-import newjeans.bunnies.auth.presentation.ui.PasswordStatusCheckBox
 import newjeans.bunnies.auth.presentation.ui.TextButton
-import newjeans.bunnies.auth.presentation.ui.image.IdIconImage
-import newjeans.bunnies.auth.presentation.ui.image.PasswordIconImage
 import newjeans.bunnies.auth.viewmodel.LoginViewModel
 import newjeans.bunnies.data.PreferenceManager
-import newjeans.bunnies.designsystem.theme.AuthEditTextColor
-import newjeans.bunnies.designsystem.theme.authText
+import newjeans.bunnies.designsystem.theme.CustomColor
+import newjeans.bunnies.designsystem.theme.CustomTextStyle
 
-
-private var userId by mutableStateOf("")
-private var password by mutableStateOf("")
 
 private const val TAG = "LoginScreen"
 
@@ -61,22 +50,35 @@ private const val TAG = "LoginScreen"
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToSignup: () -> Unit,
-    toMain: () -> Unit,
-    prefs: PreferenceManager
+    prefs: PreferenceManager,
+    toMain: () -> Unit
 ) {
+
+    var userId by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    var autologinStatus by remember { mutableStateOf(false) }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AppIconImage()
-        LoginIdEditText()
-        LoginPasswordEditText(viewModel)
+        LoginEditText("아이디", VisualTransformation.None) {
+            userId = it
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        LoginEditText("비밀번호", PasswordVisualTransformation()) {
+            password = it
+        }
         Spacer(modifier = Modifier.height(5.dp))
         StatusMessage(viewModel)
-        Spacer(modifier = Modifier.height(20.dp))
-        AutoLoginLayout(viewModel)
-        Spacer(modifier = Modifier.height(15.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+        AutoLoginLayout{
+            autologinStatus = it
+        }
+        Spacer(modifier = Modifier.height(25.dp))
         MainButton("로그인") {
-            if(userId.isNotEmpty() && password.isNotEmpty()){
+            if (userId.isNotEmpty() && password.isNotEmpty()) {
                 viewModel.login(
                     autoLogin = viewModel.autoLoginStatus.value ?: false,
                     userId = userId,
@@ -84,37 +86,54 @@ fun LoginScreen(
                     prefs = prefs
                 )
             }
-
         }
-        Spacer(modifier = Modifier.height(20.dp))
-        TextButton("계정 만들기", onNavigateToSignup)
+        Spacer(modifier = Modifier.height(15.dp))
+        TextButton("계정 만들기") {
+            onNavigateToSignup()
+        }
     }
+
     LaunchedEffect(viewModel.loginState) {
         viewModel.loginState.collect {
-            userId = ""
-            password = ""
-            toMain()
+            if (it.isSuccess) viewModel.getUserDetailInformation(prefs.accessToken, prefs)
+
+            viewModel.userId("")
+            viewModel.password("")
+        }
+    }
+
+    LaunchedEffect(viewModel.getUserDetailInformationState) {
+        viewModel.getUserDetailInformationState.collect {
+            if (it.isSuccess) {
+                toMain()
+            }
+            if (it.error.isNotEmpty()) {
+                prefs.deleteToken()
+                prefs.deleteUserData()
+            }
         }
     }
 }
 
 @Composable
-fun AutoLoginLayout(loginViewModel: LoginViewModel) {
+fun AutoLoginLayout(checkEvent: (Boolean) -> Unit) {
 
-    val autoLoginStatus by loginViewModel.autoLoginStatus.observeAsState()
+    var autoLoginStatus by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
-            .padding(start = 40.dp)
+            .padding(start = 30.dp)
+            .height(18.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
 
     ) {
-        CheckBox(autoLoginStatus ?: false) {
-            loginViewModel.autoLoginStatus(it)
+        CheckBox(autoLoginStatus) {
+            autoLoginStatus = it
+            checkEvent(it)
         }
-        Spacer(modifier = Modifier.width(17.dp))
-        Text(text = "로그인 유지하기", style = authText.bodyMedium)
+        Spacer(modifier = Modifier.width(7.dp))
+        Text(text = "로그인 상태 유지", style = CustomTextStyle.Title5, color = CustomColor.LightBlack)
     }
 }
 
@@ -125,13 +144,12 @@ fun StatusMessage(loginViewModel: LoginViewModel) {
     LaunchedEffect(loginViewModel.loginState) {
         loginViewModel.loginState.collect {
             passwordErrorStatus = it.isSuccess
-            Log.d(TAG, passwordErrorStatus.toString())
         }
     }
 
     Row(
         modifier = Modifier
-            .padding(start = 40.dp)
+            .padding(start = 45.dp)
             .fillMaxWidth(),
     ) {
         AnimatedVisibility(
@@ -139,108 +157,57 @@ fun StatusMessage(loginViewModel: LoginViewModel) {
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {
-            StatusMessageText("아이디와 비밀번호가 일치하지 않습니다", true)
+            StatusMessageText("아이디나 비밀번호가 일치하지 않습니다", true)
         }
-
         AnimatedVisibility(
-            visible = passwordErrorStatus == true || passwordErrorStatus == null,
+            visible = passwordErrorStatus != false,
             enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = LinearEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 100, easing = LinearEasing))
         ) {
             StatusMessageText("", false)
         }
-
     }
 }
 
 @Composable
-@Preview
-fun LoginIdEditText() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(6.dp)
-    ) {
-        BasicTextField(value = userId,
-            onValueChange = {
-                userId = it
-            },
-            modifier = Modifier
-                .height(65.dp)
-                .padding(top = 6.dp, start = 24.dp, end = 24.dp)
-                .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp)),
-            singleLine = false,
-            visualTransformation = VisualTransformation.None,
-            textStyle = authText.bodyMedium,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            maxLines = 1,
-            decorationBox = { innerTextField ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp, end = 30.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IdIconImage()
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Box {
-                        innerTextField()
-                        if (userId.isEmpty()) {
-                            Text("아이디", style = authText.bodySmall)
-                        }
-                    }
-
-                }
-            })
-    }
-
-}
-
-@Composable
-fun LoginPasswordEditText(
-    loginViewModel: LoginViewModel
+fun LoginEditText(
+    hint: String,
+    visualTransformation: VisualTransformation,
+    inputText: (String) -> Unit
 ) {
-    var hidePassword by remember { mutableStateOf(false) }
+    var text by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(6.dp)
+            .padding(start = 30.dp, end = 30.dp)
     ) {
-        BasicTextField(value = password,
-            onValueChange = {
-                password = it
+        BasicTextField(value = text,
+            onValueChange = { input ->
+                inputText(input)
+                text = input
             },
             modifier = Modifier
-                .height(65.dp)
-                .padding(top = 6.dp, start = 24.dp, end = 24.dp)
-                .background(AuthEditTextColor, shape = RoundedCornerShape(size = 13.dp))
-                .border(0.dp, Color.Transparent), // 테두리 제거
-            visualTransformation = if (hidePassword) VisualTransformation.None
-            else PasswordVisualTransformation(),
+                .height(50.dp)
+                .background(CustomColor.LightGray, shape = RoundedCornerShape(size = 13.dp)),
 
-            textStyle = authText.bodyMedium,
-            maxLines = 1,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = visualTransformation,
+            textStyle = CustomTextStyle.Title6,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            singleLine = true,
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 24.dp, end = 30.dp),
+                        .padding(start = 15.dp, end = 30.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    PasswordIconImage()
-                    Spacer(modifier = Modifier.width(17.dp))
+                    Spacer(modifier = Modifier.width(15.dp))
                     Box {
                         innerTextField()
-                        if (password.isEmpty()) {
-                            Text("비밀번호", style = authText.bodySmall)
+                        if (text.isEmpty()) {
+                            Text(hint, style = CustomTextStyle.Title6, color = CustomColor.Gray)
                         }
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                    PasswordStatusCheckBox(hidePassword) {
-                        hidePassword = it
                     }
                 }
             })
