@@ -5,15 +5,14 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import newjeans.bunnies.di.Constant.BASE_URL
 import newjeans.bunnies.network.auth.AuthApi
 import newjeans.bunnies.network.post.PostApi
 import newjeans.bunnies.network.user.UserApi
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
