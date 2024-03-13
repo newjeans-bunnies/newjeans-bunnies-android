@@ -3,7 +3,6 @@ package newjeans.bunnies.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import java.time.LocalDateTime
 
 
 class PreferenceManager(context: Context) {
@@ -23,7 +22,7 @@ class PreferenceManager(context: Context) {
         set(value) = prefs.edit().putString(REFRESH_TOKEN, value).apply()
 
     var expiredAt: String
-        get() = prefs.getString(EXPIRED_AT, LocalDateTime.MIN.toString()).toString()
+        get() = prefs.getString(EXPIRED_AT, "").toString()
         set(value) = prefs.edit().putString(EXPIRED_AT, value).apply()
 
     var userId: String
@@ -44,7 +43,7 @@ class PreferenceManager(context: Context) {
         prefs.edit().remove(EXPIRED_AT).apply()
     }
 
-    fun deleteUserData(){
+    fun deleteUserData() {
         prefs.edit().remove(USER_ID).apply()
         prefs.edit().remove(USER_PHONENUMBER).apply()
         prefs.edit().remove(USER_IMAGE).apply()
