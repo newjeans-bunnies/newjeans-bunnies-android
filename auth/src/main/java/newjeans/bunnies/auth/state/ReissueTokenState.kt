@@ -1,4 +1,4 @@
-package newjeans.bunnies.app.state
+package newjeans.bunnies.auth.state
 
 data class ReissueTokenState(
     val isSuccess: Boolean = false,
