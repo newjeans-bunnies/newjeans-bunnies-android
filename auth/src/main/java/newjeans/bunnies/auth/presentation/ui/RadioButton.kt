@@ -17,42 +17,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
-import newjeans.bunnies.designsystem.theme.AuthRadioButtonBackgroundColor
-import newjeans.bunnies.designsystem.theme.AuthRadioButtonColor
-import newjeans.bunnies.designsystem.theme.authText
+import newjeans.bunnies.auth.viewmodel.SignupViewModel
+import newjeans.bunnies.designsystem.theme.CustomColor
+import newjeans.bunnies.designsystem.theme.CustomTextStyle
 
 
 @Composable
-fun SelectCountryRadioButton(countryOptions: List<String>) {
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(countryOptions[1]) }
+fun SelectCountryRadioButton(countryOptions: List<String>, viewModel: SignupViewModel) {
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(countryOptions[0]) }
+    viewModel.country(countryOptions[0])
     Row(
         modifier = Modifier
-            .height(60.dp)
+            .height(50.dp)
             .fillMaxWidth()
             .padding(start = 30.dp, end = 30.dp)
-            .background(color = AuthRadioButtonBackgroundColor, shape = RoundedCornerShape(size = 13.dp)),
+            .background(color = CustomColor.LightGray, shape = RoundedCornerShape(size = 13.dp)),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
         countryOptions.forEach { country ->
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .height(50.dp)
+                    .height(40.dp)
                     .weight(1F)
                     .selectable(
                         selected = (country == selectedOption),
                         onClick = {
+                            viewModel.country(country)
                             onOptionSelected(country)
                         }
                     )
                     .padding(start = 5.dp)
                     .padding(end = 5.dp)
                     .background(color = if (country == selectedOption) {
-                        AuthRadioButtonColor // 선택된 경우의 색상
+                        CustomColor.Button // 선택된 경우의 색상
                     } else {
                          // 선택되지 않은 경우의 색상
-                        AuthRadioButtonBackgroundColor
+                        CustomColor.LightGray
                     }, shape = RoundedCornerShape(size = 13.dp)),
                 contentAlignment = Alignment.Center
             ) {
@@ -66,6 +67,6 @@ fun SelectCountryRadioButton(countryOptions: List<String>) {
 fun RadioButtonText(country: String){
     Text(
         text = country,
-        style = authText.headlineMedium
+        style = CustomTextStyle.Title7
     )
 }
