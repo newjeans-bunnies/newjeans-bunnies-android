@@ -13,18 +13,26 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import newjeans.bunnies.auth.state.ReissueTokenState
+import newjeans.bunnies.auth.state.UserDetailInformationState
 
 import newjeans.bunnies.auth.state.login.CheckSupportState
-import newjeans.bunnies.main.viewmodel.UserViewModel
+import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.network.auth.AuthRepository
+import newjeans.bunnies.network.user.UserRepository
 
 import javax.inject.Inject
 
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
-) : ViewModel() {
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
+    ) : ViewModel() {
+
+    companion object {
+        const val TAG = "AuthViewModel"
+    }
 
     private val _checkSupportState = MutableSharedFlow<CheckSupportState>()
     val checkSupportState: SharedFlow<CheckSupportState> = _checkSupportState
@@ -32,21 +40,80 @@ class AuthViewModel @Inject constructor(
     private var _countrys = MutableLiveData<List<String>>()
     val countrys: LiveData<List<String>> = _countrys
 
+    private val _getUserDetailInformationState = MutableSharedFlow<UserDetailInformationState>()
+    val getUserDetailInformationState: SharedFlow<UserDetailInformationState> =
+        _getUserDetailInformationState
+
+    private val _reissueTokenState = MutableSharedFlow<ReissueTokenState>()
+    val reissueTokenState: SharedFlow<ReissueTokenState> = _reissueTokenState
+
     fun checkSupport() {
         viewModelScope.launch {
             val countrys = countrys.value
             if (countrys.isNullOrEmpty()) {
                 kotlin.runCatching {
-                    authRepository.checkSupport()
+                    userRepository.checkSupport()
                 }.onSuccess {
                     _countrys.value = it.country
                     _checkSupportState.emit(CheckSupportState(true))
                 }.onFailure { e ->
                     _checkSupportState.emit(CheckSupportState(false, e.message.toString()))
-                    Log.d(UserViewModel.TAG, e.message.toString())
+                    Log.d(TAG, e.message.toString())
                 }
             } else {
                 _checkSupportState.emit(CheckSupportState(true))
+            }
+        }
+    }
+
+    fun getUserDetailInformation(authorization: String, prefs: PreferenceManager) {
+        viewModelScope.launch {
+            kotlin.runCatching {
+                userRepository.getUserDetails("Bearer $authorization")
+            }.onSuccess {
+                Log.d(TAG, it.toString())
+                prefs.userId = it.id
+                prefs.userPhoneNumber = it.phoneNumber
+                prefs.userImage = it.imageUrl
+                _getUserDetailInformationState.emit(UserDetailInformationState(true, ""))
+            }.onFailure { e ->
+                Log.d(TAG, e.message.toString())
+                if (prefs.refreshToken.isNotEmpty()) {
+                    reissueToken(
+                        prefs.accessToken,
+                        prefs.refreshToken,
+                        prefs
+                    ) { getUserDetailInformation(authorization, prefs) }
+                } else {
+                    _getUserDetailInformationState.emit(
+                        UserDetailInformationState(
+                            false,
+                            e.message.toString()
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun reissueToken(
+        accessToken: String,
+        refreshToken: String,
+        prefs: PreferenceManager,
+        function: () -> Unit
+    ) {
+        viewModelScope.launch {
+            kotlin.runCatching {
+                authRepository.reissueToken(refreshToken, accessToken)
+            }.onSuccess {
+                prefs.accessToken = it.accessToken
+                prefs.expiredAt = it.expiredAt
+                prefs.refreshToken = it.refreshToken
+                _reissueTokenState.emit(ReissueTokenState(true, ""))
+                function()
+            }.onFailure { e ->
+                Log.d(TAG, e.message.toString())
+                _reissueTokenState.emit(ReissueTokenState(false, e.message.toString()))
             }
         }
     }
