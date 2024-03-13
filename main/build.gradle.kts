@@ -47,7 +47,6 @@ dependencies {
     implementation(project(":network"))
     implementation(project(":database"))
     implementation(project(":designsystem"))
-    implementation(project(":auth"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
@@ -65,7 +64,6 @@ dependencies {
     implementation(libs.androidx.material)
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.androidx.appcompat)
 

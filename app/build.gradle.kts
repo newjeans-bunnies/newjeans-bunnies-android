@@ -57,6 +57,7 @@ android {
         implementation(project(":database"))
         implementation(project(":network"))
         implementation(project(":auth"))
+        implementation(project(":main"))
         implementation(project(":di"))
 
         implementation(platform(libs.androidx.compose.bom))
@@ -69,6 +70,7 @@ android {
         debugImplementation(libs.androidx.ui.tooling)
 
         implementation(libs.androidx.core.ktx)
+        implementation(libs.androidx.core.splashscreen)
 
         implementation(libs.hilt.android)
         kapt(libs.hilt.compiler)

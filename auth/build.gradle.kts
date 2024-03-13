@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     id("com.google.dagger.hilt.android")
-    id("com.google.gms.google-services")
     id("kotlin-kapt")
 }
 
@@ -53,14 +52,12 @@ dependencies {
     implementation(project(":designsystem"))
     implementation(project(":main"))
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.navigation)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.animation)
     debugImplementation(libs.androidx.compose.ui.tooling.preview)
 
     implementation(libs.androidx.runtime.livedata)
