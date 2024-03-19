@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import newjeans.bunnies.data.PreferenceManager
-import newjeans.bunnies.main.presentation.post.data.PostData
-import newjeans.bunnies.main.presentation.post.state.PostInfoState
+import newjeans.bunnies.main.data.PostData
+import newjeans.bunnies.main.state.PostImageState
+import newjeans.bunnies.main.state.PostInfoState
 import newjeans.bunnies.main.state.ReissueTokenState
 import newjeans.bunnies.network.auth.AuthRepository
 
@@ -51,6 +52,9 @@ class PostViewModel @Inject constructor(
 
     private val _reissueTokenState = MutableSharedFlow<ReissueTokenState>()
     val reissueTokenState: SharedFlow<ReissueTokenState> = _reissueTokenState
+
+    private val _postImageState = MutableSharedFlow<PostImageState>()
+    val postImageState: SharedFlow<PostImageState> = _postImageState
 
     fun makePost(makePostRequestDto: MakePostRequestDto) {
         viewModelScope.launch {
@@ -90,14 +94,16 @@ class PostViewModel @Inject constructor(
                 if (it.isNotEmpty()) {
                     _lastDate.value = it[it.size - 1].createDate
                     if (_postData.value != null) {
-                        _postData.value = _postData.value!! + it.map { postData ->
+                        _postData.value = _postData.value!! + it.map {
                             PostData(
-                                uuid = postData.uuid,
-                                userId = postData.userId,
-                                createDate = postData.createDate,
+                                postId = it.uuid,
+                                userId = it.userId,
+                                postCreateDate = it.createDate,
                                 goodStatus = null,
-                                body = postData.body,
-                                good = postData.good
+                                postBody = it.body,
+                                goodCount = it.good,
+                                postImage = it.images,
+                                userImage = it.userImage
                             )
                         }
                     }
@@ -124,14 +130,16 @@ class PostViewModel @Inject constructor(
                 if (it.isNotEmpty()) {
                     _lastDate.value = it[it.size - 1].createDate
                     if (_postData.value != null) {
-                        _postData.value = _postData.value!! + it.map { postData ->
+                        _postData.value = _postData.value!! + it.map {
                             PostData(
-                                uuid = postData.uuid,
-                                userId = postData.userId,
-                                createDate = postData.createDate,
-                                goodStatus = postData.goodStatus,
-                                body = postData.body,
-                                good = postData.good
+                                postId = it.uuid,
+                                userId = it.userId,
+                                postCreateDate = it.createDate,
+                                goodStatus = null,
+                                postBody = it.body,
+                                goodCount = it.good,
+                                postImage = it.images,
+                                userImage = it.userImage
                             )
                         }
                     }
@@ -200,8 +208,10 @@ class PostViewModel @Inject constructor(
                 postRepository.postImage(postId)
             }.onSuccess {
                 _postImage.value = it
+                _postImageState.emit(PostImageState(true, "", it))
             }.onFailure { e ->
                 Log.d(TAG, e.message.toString())
+                _postImageState.emit(PostImageState(false, e.message.toString()))
             }
         }
     }
