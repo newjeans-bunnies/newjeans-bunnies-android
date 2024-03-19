@@ -1,4 +1,4 @@
-package newjeans.bunnies.main.presentation.post.state
+package newjeans.bunnies.main.state
 
 data class UserDetailInformationState(
     val isSuccess: Boolean = false,
