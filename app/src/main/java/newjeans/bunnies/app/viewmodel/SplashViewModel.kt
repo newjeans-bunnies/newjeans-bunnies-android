@@ -58,7 +58,7 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    private fun reissueToken(
+    fun reissueToken(
         accessToken: String,
         refreshToken: String,
         prefs: PreferenceManager

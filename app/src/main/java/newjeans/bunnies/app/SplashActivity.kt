@@ -43,13 +43,10 @@ class SplashActivity : ComponentActivity() {
         setContent {
             splashScreenState = remember { mutableStateOf(true) }
             splashScreen.setKeepOnScreenCondition { splashScreenState.value }
-            if (prefs.autoLogin) {
-                viewModel.getUserDetailInformation(
-                    prefs = prefs, authorization = prefs.accessToken
-                )
-            } else {
+            if (prefs.autoLogin)
+                viewModel.reissueToken(accessToken = prefs.accessToken, refreshToken = prefs.refreshToken, prefs = prefs)
+            else
                 authActivity()
-            }
 
 
             LaunchedEffect(viewModel.reissueTokenState) {
