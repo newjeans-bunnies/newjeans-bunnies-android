@@ -28,6 +28,10 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
+    companion object {
+        private const val TAG = "LoginViewModel"
+    }
+
 
     private val _autoLoginStatus = MutableLiveData<Boolean>()
     val autoLoginStatus: LiveData<Boolean>
@@ -61,7 +65,7 @@ class LoginViewModel @Inject constructor(
     val getUserDetailInformationState: SharedFlow<UserDetailInformationState> = _getUserDetailInformationState
 
 
-    fun login(autoLogin: Boolean, userId: String, password: String, prefs: PreferenceManager) {
+    fun login(userId: String, password: String, prefs: PreferenceManager) {
         viewModelScope.launch {
             kotlin.runCatching {
                 authRepository.login(
@@ -71,12 +75,12 @@ class LoginViewModel @Inject constructor(
                     )
                 )
             }.onSuccess {
-                Log.d("login Success", it.toString())
+                Log.d(TAG, it.toString())
                 with(prefs) {
                     accessToken = it.accessToken
                     refreshToken = it.refreshToken
                     expiredAt = it.expiredAt
-                    this.autoLogin = autoLogin
+                    this.autoLogin = autoLoginStatus.value?:false
                 }
                 _loginState.emit(LoginState(true, ""))
             }.onFailure { e ->
@@ -90,13 +94,13 @@ class LoginViewModel @Inject constructor(
             kotlin.runCatching {
                 userRepository.getUserDetails("Bearer $authorization")
             }.onSuccess {
-                Log.d(AuthViewModel.TAG, it.toString())
+                Log.d(TAG, it.toString())
                 prefs.userId = it.id
                 prefs.userPhoneNumber = it.phoneNumber
                 prefs.userImage = it.imageUrl
                 _getUserDetailInformationState.emit(UserDetailInformationState(true))
             }.onFailure { e ->
-                Log.d(AuthViewModel.TAG, e.message.toString())
+                Log.d(TAG, e.message.toString())
                 _getUserDetailInformationState.emit(UserDetailInformationState(false, e.message.toString()))
             }
         }
