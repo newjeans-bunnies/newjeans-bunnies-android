@@ -21,12 +21,12 @@ interface PostRepository {
 
 
     // 게시글 좋아요
-    suspend fun postGood(authorization: String, postId: String, userId: String): PostGoodResponseDto
+    suspend fun postGood(postId: String, userId: String): PostGoodResponseDto
 
 
     // 게시글 여러개 가져오기
     suspend fun listPostBasicInfo(date: String): List<PostBasicInfoResponseDto>
-    suspend fun listPostDetail(authorization: String, date: String, userId: String): List<PostDetailResponseDto>
+    suspend fun listPostDetail(date: String, userId: String): List<PostDetailResponseDto>
 
 
     // 특정 유저 게시글 가져오기
@@ -36,9 +36,9 @@ interface PostRepository {
 
     //단일 게시글 가져오기
     suspend fun postBasicInfo(uuid: String): PostBasicInfoResponseDto
-    suspend fun postDetail(authorization: String, userId: String): PostDetailResponseDto
+    suspend fun postDetail(userId: String): PostDetailResponseDto
 
 
     //게시글 삭제하기
-    suspend fun deletePost(authorization: String, postId: String): StatusResponseDto
+    suspend fun deletePost(postId: String): StatusResponseDto
 }

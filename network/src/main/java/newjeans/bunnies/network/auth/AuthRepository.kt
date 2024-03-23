@@ -1,5 +1,6 @@
 package newjeans.bunnies.network.auth
 
+import kotlinx.coroutines.flow.Flow
 import newjeans.bunnies.network.auth.dto.reqeust.CertificationVerifyRequestDto
 import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
 import newjeans.bunnies.network.auth.dto.reqeust.SignupRequestDto
@@ -14,4 +15,5 @@ interface AuthRepository {
     suspend fun reissueToken(refreshToken: String, accessToken: String): RefreshResponseDto
     suspend fun verify(certificationVerifyRequestDto: CertificationVerifyRequestDto): StatusResponseDto
     suspend fun certification(phoneNumber: String): StatusResponseDto
+
 }

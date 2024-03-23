@@ -11,6 +11,7 @@ import newjeans.bunnies.network.global.dto.response.StatusResponseDto
 
 import retrofit2.http.Body
 import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -18,11 +19,13 @@ import retrofit2.http.Query
 
 interface AuthApi {
     @POST("/api/auth/login")
+    @Headers("Auth: false")
     suspend fun login(
         @Body loginRequestDto: LoginReqeustDto
     ): LoginResponseDto
 
     @POST("/api/auth/signup")
+    @Headers("Auth: false")
     suspend fun signup(
         @Body signupRequestDto: SignupRequestDto
     ): SignupResponseDto
@@ -34,6 +37,7 @@ interface AuthApi {
     ): RefreshResponseDto
 
     @POST("/api/auth/phonenumber/verify")
+    @Headers("Auth: false")
     suspend fun verify(@Body certificationVerifyRequestDto: CertificationVerifyRequestDto): StatusResponseDto
 
     @POST("/api/auth/phonenumber")

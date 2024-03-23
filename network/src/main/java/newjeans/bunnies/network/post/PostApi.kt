@@ -13,6 +13,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -29,7 +30,6 @@ interface PostApi {
     //게시글 좋아요
     @POST("/api/post/good")
     suspend fun postGood(
-        @Header("Authorization") authorization: String,
         @Query("post-id") postId: String,
         @Query("user-id") userId: String
     ): PostGoodResponseDto
@@ -42,19 +42,20 @@ interface PostApi {
 
     // 게시글 여러개 가져오기
     @GET("/api/post/basic-info")
+    @Headers("Auth: false")
     suspend fun listPostBasicInfo(
         @Query("date") date: String
     ): List<PostBasicInfoResponseDto>
 
     @GET("/api/post/detail")
     suspend fun listPostDetail(
-        @Header("Authorization") authorization: String,
         @Query("date") date: String,
         @Query("userId") userId: String
     ): List<PostDetailResponseDto>
 
     // 특정 유저 게시글 가져오기
     @GET("api/post/user/basic-info/{userId}")
+    @Headers("Auth: false")
     suspend fun userPostBasicInfo(
         @Path("userId") userId: String,
         @Query("date") date: String
@@ -68,20 +69,19 @@ interface PostApi {
 
     //단일 게시글 가져오기
     @GET("/api/post/basic-info/{uuid}")
+    @Headers("Auth: false")
     suspend fun postBasicInfo(
         @Path(value = "uuid") uuid: String
     ): PostBasicInfoResponseDto
 
     @GET("/api/post/detail/{uuid}")
     suspend fun postDetail(
-        @Header("Authorization") authorization: String,
         @Path(value = "uuid") uuid: String
     ): PostDetailResponseDto
 
     //게시글 삭제하기
     @DELETE("/api/post/delete")
     suspend fun deletePost(
-        @Header("Authorization") authorization: String,
         @Query("postId") postId: String
     ): StatusResponseDto
 

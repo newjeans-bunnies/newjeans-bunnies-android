@@ -23,7 +23,10 @@ class AuthApiRepositoryImpl @Inject constructor(
         return authApi.signup(signupRequestDto)
     }
 
-    override suspend fun reissueToken(refreshToken: String, accessToken: String): RefreshResponseDto {
+    override suspend fun reissueToken(
+        refreshToken: String,
+        accessToken: String
+    ): RefreshResponseDto {
         return authApi.refresh(refreshToken, accessToken)
     }
 

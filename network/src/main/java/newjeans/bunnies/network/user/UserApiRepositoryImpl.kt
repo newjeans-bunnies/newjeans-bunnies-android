@@ -12,21 +12,20 @@ class UserApiRepositoryImpl @Inject constructor(
     private val userApi: UserApi
 ) : UserRepository {
     override suspend fun getUserDetails(
-        authorization: String
     ): UserDetailDto {
-        return userApi.getUserDetails(authorization)
+        return userApi.getUserDetails()
     }
 
     override suspend fun getUserBasicInfo(userId: String): UserBasicDto {
         return userApi.getUserBasicInfo(userId)
     }
 
-    override suspend fun updateUser(authorization: String, id: String, userDto: UserDto) {
-        return userApi.updateUser(authorization, id, userDto)
+    override suspend fun updateUser(id: String, userDto: UserDto) {
+        return userApi.updateUser(id, userDto)
     }
 
-    override suspend fun deleteUser(authorization: String, userId: String): StatusResponseDto {
-        return userApi.deleteUser(authorization, userId)
+    override suspend fun deleteUser(userId: String): StatusResponseDto {
+        return userApi.deleteUser(userId)
     }
 
     override suspend fun checkUserId(userId: String): StatusResponseDto {

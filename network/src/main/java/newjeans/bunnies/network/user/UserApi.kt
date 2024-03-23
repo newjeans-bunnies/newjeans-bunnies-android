@@ -12,6 +12,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.PATCH
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -19,19 +20,17 @@ import retrofit2.http.Query
 
 interface UserApi {
     @GET("/api/user/get-detail")
-    suspend fun getUserDetails(
-        @Header("Authorization") authorization: String
-    ): UserDetailDto
+    suspend fun getUserDetails(): UserDetailDto
 
 
     @GET("/api/user/get-basic/{userId}")
+    @Headers("Auth: false")
     suspend fun getUserBasicInfo(
         @Path(value = "userId") userId: String
     ): UserBasicDto
 
     @PATCH("/api/user/update")
     suspend fun updateUser(
-        @Header("Authorization") authorization: String,
         @Query("id") id: String,
         @Body userDto: UserDto
     )
@@ -43,21 +42,23 @@ interface UserApi {
 
 
     @GET("/api/user/check/phonenumber")
+    @Headers("Auth: false")
     suspend fun checkPhoneNumber(
         @Query("phonenumber") phoneNumber: String
     ): StatusResponseDto
 
     @GET("/api/user/support")
+    @Headers("Auth: false")
     suspend fun checkSupport(): CheckSupportResponseDto
 
     @GET("/api/user/image/{userId}")
+    @Headers("Auth: false")
     suspend fun getUserImage(
         @Path("userId") userId: String
     ): UserImageResponseDto
 
     @DELETE("/api/user/delete")
     suspend fun deleteUser(
-        @Header("Authorization") authorization: String,
         @Query("userId") userId: String
     ): StatusResponseDto
 }
