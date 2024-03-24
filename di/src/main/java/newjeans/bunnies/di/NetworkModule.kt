@@ -1,10 +1,13 @@
 package newjeans.bunnies.di
 
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import newjeans.bunnies.data.TokenManager
 import newjeans.bunnies.di.Constant.BASE_URL
 import newjeans.bunnies.network.auth.AuthApi
 import newjeans.bunnies.network.post.PostApi
@@ -23,18 +26,15 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAuthApi(retrofit: Retrofit): AuthApi =
-        retrofit.create(AuthApi::class.java)
+    fun provideAuthApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
 
     @Provides
     @Singleton
-    fun providePostApi(retrofit: Retrofit): PostApi =
-        retrofit.create(PostApi::class.java)
+    fun providePostApi(retrofit: Retrofit): PostApi = retrofit.create(PostApi::class.java)
 
     @Provides
     @Singleton
-    fun provideUserApi(retrofit: Retrofit): UserApi =
-        retrofit.create(UserApi::class.java)
+    fun provideUserApi(retrofit: Retrofit): UserApi = retrofit.create(UserApi::class.java)
 
     @Provides
     @Singleton
@@ -51,13 +51,14 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        loggerInterceptor: HttpLoggingInterceptor,
+        loggerInterceptor: HttpLoggingInterceptor, authInterceptor: AuthInterceptor
     ): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient().newBuilder()
         okHttpClientBuilder.connectTimeout(60, TimeUnit.SECONDS)
         okHttpClientBuilder.readTimeout(60, TimeUnit.SECONDS)
         okHttpClientBuilder.writeTimeout(60, TimeUnit.SECONDS)
         okHttpClientBuilder.addInterceptor(loggerInterceptor)
+        okHttpClientBuilder.addInterceptor(authInterceptor)
 
         return okHttpClientBuilder.build()
     }
@@ -66,4 +67,15 @@ class NetworkModule {
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+
+    @Provides
+    @Singleton
+    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor =
+        AuthInterceptor(tokenManager)
+
+    @Singleton
+    @Provides
+    fun provideTokenManager(@ApplicationContext context: Context): TokenManager {
+        return TokenManager(context)
+    }
 }
