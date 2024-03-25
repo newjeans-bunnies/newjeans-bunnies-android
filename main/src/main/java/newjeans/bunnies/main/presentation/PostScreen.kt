@@ -16,13 +16,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import newjeans.bunnies.designsystem.theme.CustomColor
+import newjeans.bunnies.main.MainActivity
 
-import newjeans.bunnies.main.MainActivity.Companion.prefs
 import newjeans.bunnies.main.data.PostData
 import newjeans.bunnies.main.data.UserData
 import newjeans.bunnies.main.presentation.post.ui.Post
@@ -34,16 +34,13 @@ private const val TAG = "PostScreen"
 @Composable
 fun PostScreen(
     postViewModel: PostViewModel = hiltViewModel(),
-    finish: () -> Unit,
 ) {
+    val activity = LocalContext.current as MainActivity
     var postData by remember { mutableStateOf(listOf<PostData>()) }
 
-    val userData = UserData(
-        userId = prefs.userId, userImage = prefs.userImage, userPhoneNumber = prefs.userPhoneNumber
-    )
-
-    if (prefs.accessToken.isNotBlank()) postViewModel.listPostDetail(userData.userId, prefs)
-    else postViewModel.listPostBasicInfo()
+    postViewModel.listPostDetail()
+//    if (prefs.accessToken.isNotBlank()) postViewModel.listPostDetail(userData.userId)
+//    else postViewModel.listPostBasicInfo()
 
 
     LaunchedEffect(postViewModel.postInfoState) {
@@ -54,13 +51,13 @@ fun PostScreen(
                     Log.d(TAG, postData.toString())
                 }
             }
-            if (it.error.isNotEmpty()) finish()
+            if (it.error.isNotEmpty()) activity.finish()
         }
     }
 
     LaunchedEffect(postViewModel.reissueTokenState) {
         postViewModel.reissueTokenState.collect {
-            if (it.error.isNotEmpty()) finish()
+            if (it.error.isNotEmpty()) activity.finish()
         }
     }
 
@@ -77,8 +74,8 @@ fun PostScreen(
         ) {
             items(postData) {
                 Column {
-                    Post(postData = it, userData = userData)
-                    Divider(color = CustomColor.Gray, thickness = 1.dp, modifier = Modifier.padding(bottom = 20.dp))
+                    Post(postData = it)
+                    HorizontalDivider(color = CustomColor.Gray, thickness = 1.dp, modifier = Modifier.padding(bottom = 20.dp))
                 }
             }
         }
