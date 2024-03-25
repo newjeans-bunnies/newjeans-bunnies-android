@@ -8,6 +8,7 @@ import newjeans.bunnies.network.auth.dto.response.LoginResponseDto
 import newjeans.bunnies.network.auth.dto.response.RefreshResponseDto
 import newjeans.bunnies.network.auth.dto.response.SignupResponseDto
 import newjeans.bunnies.network.global.dto.response.StatusResponseDto
+import retrofit2.Response
 
 import javax.inject.Inject
 
@@ -26,8 +27,8 @@ class AuthApiRepositoryImpl @Inject constructor(
     override suspend fun reissueToken(
         refreshToken: String,
         accessToken: String
-    ): RefreshResponseDto {
-        return authApi.refresh(refreshToken, accessToken)
+    ): Response<RefreshResponseDto> {
+        return authApi.reissueToken(refreshToken, accessToken)
     }
 
     override suspend fun verify(certificationVerifyRequestDto: CertificationVerifyRequestDto): StatusResponseDto {

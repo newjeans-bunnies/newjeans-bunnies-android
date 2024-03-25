@@ -8,6 +8,7 @@ import newjeans.bunnies.network.auth.dto.response.LoginResponseDto
 import newjeans.bunnies.network.auth.dto.response.RefreshResponseDto
 import newjeans.bunnies.network.auth.dto.response.SignupResponseDto
 import newjeans.bunnies.network.global.dto.response.StatusResponseDto
+import retrofit2.Response
 
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -31,10 +32,10 @@ interface AuthApi {
     ): SignupResponseDto
 
     @PATCH("/api/auth/refresh")
-    suspend fun refresh(
+    suspend fun reissueToken(
         @Header("refresh-token") refreshToken: String,
         @Header("access-token") accessToken: String,
-    ): RefreshResponseDto
+    ): Response<RefreshResponseDto>
 
     @POST("/api/auth/phonenumber/verify")
     @Headers("Auth: false")

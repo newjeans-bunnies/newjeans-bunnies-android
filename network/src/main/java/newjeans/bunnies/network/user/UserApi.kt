@@ -36,6 +36,7 @@ interface UserApi {
     )
 
     @GET("/api/user/check/userid")
+    @Headers("Auth: false")
     suspend fun checkUserId(
         @Query("userId") userId: String
     ): StatusResponseDto

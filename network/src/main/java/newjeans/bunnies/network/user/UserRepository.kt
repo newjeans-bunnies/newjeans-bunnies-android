@@ -9,10 +9,10 @@ import newjeans.bunnies.network.user.dto.response.UserImageResponseDto
 
 interface UserRepository {
 
-    suspend fun getUserDetails(authorization: String): UserDetailDto
+    suspend fun getUserDetails(): UserDetailDto
     suspend fun getUserBasicInfo(userId: String): UserBasicDto
-    suspend fun updateUser(authorization: String, id: String, userDto: UserDto)
-    suspend fun deleteUser(authorization: String, userId: String): StatusResponseDto
+    suspend fun updateUser(id: String, userDto: UserDto)
+    suspend fun deleteUser(userId: String): StatusResponseDto
     suspend fun checkUserId(userId: String): StatusResponseDto
     suspend fun checkPhoneNumber(phoneNumber: String): StatusResponseDto
     suspend fun checkSupport(): CheckSupportResponseDto
