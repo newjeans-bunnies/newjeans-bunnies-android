@@ -26,6 +26,29 @@ class NetworkModule {
 
     @Provides
     @Singleton
+    fun provideAuthAuthenticator(
+        tokenManager: TokenManager
+    ): AuthAuthenticator =
+        AuthAuthenticator(tokenManager)
+
+    @Provides
+    @Singleton
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor =
+        HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+
+    @Provides
+    @Singleton
+    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor =
+        AuthInterceptor(tokenManager)
+
+    @Singleton
+    @Provides
+    fun provideTokenManager(@ApplicationContext context: Context): TokenManager {
+        return TokenManager(context)
+    }
+
+    @Provides
+    @Singleton
     fun provideAuthApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
 
     @Provides
@@ -46,36 +69,21 @@ class NetworkModule {
             .build()
     }
 
-    /* OkHttp로 세부적인 네트워크 구성요소를 설정 */
-
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        loggerInterceptor: HttpLoggingInterceptor, authInterceptor: AuthInterceptor
+        loggerInterceptor: HttpLoggingInterceptor,
+        authInterceptor: AuthInterceptor,
+        authAuthenticator: AuthAuthenticator
     ): OkHttpClient {
-        val okHttpClientBuilder = OkHttpClient().newBuilder()
-        okHttpClientBuilder.connectTimeout(60, TimeUnit.SECONDS)
-        okHttpClientBuilder.readTimeout(60, TimeUnit.SECONDS)
-        okHttpClientBuilder.writeTimeout(60, TimeUnit.SECONDS)
-        okHttpClientBuilder.addInterceptor(loggerInterceptor)
-        okHttpClientBuilder.addInterceptor(authInterceptor)
-
-        return okHttpClientBuilder.build()
+        return OkHttpClient().newBuilder().apply {
+            connectTimeout(60, TimeUnit.SECONDS)
+            readTimeout(60, TimeUnit.SECONDS)
+            writeTimeout(60, TimeUnit.SECONDS)
+            addInterceptor(loggerInterceptor)
+            addInterceptor(authInterceptor)
+            authenticator(authAuthenticator)
+        }.build()
     }
 
-    @Provides
-    @Singleton
-    fun provideLoggingInterceptor(): HttpLoggingInterceptor =
-        HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
-
-    @Provides
-    @Singleton
-    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor =
-        AuthInterceptor(tokenManager)
-
-    @Singleton
-    @Provides
-    fun provideTokenManager(@ApplicationContext context: Context): TokenManager {
-        return TokenManager(context)
-    }
 }
