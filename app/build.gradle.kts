@@ -54,9 +54,9 @@ android {
         }
 
         implementation(project(":designsystem"))
-        implementation(project(":database"))
         implementation(project(":network"))
         implementation(project(":auth"))
+        implementation(project(":database"))
         implementation(project(":main"))
         implementation(project(":di"))
 

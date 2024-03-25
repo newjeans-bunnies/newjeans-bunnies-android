@@ -2,6 +2,8 @@
 plugins {
     alias(libs.plugins.android.library)
     id ("org.jetbrains.kotlin.android")
+    id ("kotlin-kapt")
+
 }
 
 android {
@@ -32,5 +34,10 @@ dependencies {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
+
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+
+    implementation(libs.androidx.datastore.preferences)
 
 }

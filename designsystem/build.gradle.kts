@@ -19,6 +19,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.2"
     }
+
+    buildFeatures {
+        compose = true
+    }
+
     packaging {
         resources {
             excludes += "META-INF/gradle/incremental.annotation.processors"

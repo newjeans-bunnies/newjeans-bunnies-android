@@ -44,7 +44,10 @@ dependencies {
     implementation(libs.retrofit.core)
     implementation(libs.gson)
     implementation(libs.converter.gson)
-    implementation(libs.logging.interceptor.v4100)
+
+    implementation(libs.okhttp.logging)
+    implementation(libs.okhttp)
+    implementation(platform(libs.okhttp.bom))
 
     implementation(libs.androidx.lifecycle.viewModelktx)
 
