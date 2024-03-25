@@ -63,4 +63,14 @@ object CustomTextStyle {
         fontWeight = FontWeight.Medium,
         fontSize = 13.sp
     )
+    val Title9 = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 13.sp
+    )
+    val Title10 = TextStyle(
+        fontFamily = pretendard,
+        fontWeight = FontWeight.Medium,
+        fontSize = 8.sp
+    )
 }
