@@ -7,6 +7,6 @@ data class PostData(
     val postCreateDate: String,
     val postBody: String,
     val postImage: List<String>,
-    val goodCount: Long,
+    val goodCounts: Long,
     val goodStatus: Boolean?,
 )
