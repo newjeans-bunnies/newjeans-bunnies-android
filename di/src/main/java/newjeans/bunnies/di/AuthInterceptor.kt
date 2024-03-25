@@ -34,6 +34,7 @@ class AuthInterceptor @Inject constructor(
         val token: String = runBlocking {
             tokenModule.getAccessToken().first()
         }
+        Log.d(TAG, token)
 
         val request =
             chain.request().newBuilder().addHeader("Authorization", "Bearer $token").build()
@@ -44,19 +45,15 @@ class AuthInterceptor @Inject constructor(
             Log.d(TAG, "new Access Token = $newAccessToken")
 
             CoroutineScope(Dispatchers.IO).launch {
-                val existedAccessToken = tokenModule.getAccessToken().first()
+                val existedAccessToken: String = runBlocking { tokenModule.getAccessToken().first() }
                 if (existedAccessToken != newAccessToken) {
                     tokenModule.saveAccessToken(newAccessToken)
-                    Log.d(
-                        TAG,
-                        "newAccessToken = ${newAccessToken}\nExistedAccessToken = $existedAccessToken"
-                    )
+                    Log.d(TAG, "newAccessToken = ${newAccessToken}\nExistedAccessToken = $existedAccessToken")
                 }
             }
         } else {
             Log.e(TAG, "${response.code} : ${response.request} \n ${response.message}")
         }
-
 
         return response
     }

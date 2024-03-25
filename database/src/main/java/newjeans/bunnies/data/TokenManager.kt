@@ -32,7 +32,9 @@ class TokenManager @Inject constructor(
     private val Context.accessTokenDataStore by preferencesDataStore("ACCESS_TOKEN_DATASTORE")
     private val Context.refreshTokenDataStore by preferencesDataStore("REFRESH_TOKEN_DATASTORE")
     private val Context.loginCheckDataStore by preferencesDataStore("LOGIN_CHECK_DATASTORE")
-    private val Context.userDataStore by preferencesDataStore("USER_DATASTORE")
+    private val Context.userIdDataStore by preferencesDataStore("USER_ID")
+    private val Context.userImageDataStore by preferencesDataStore("USER_IMAGE")
+    private val Context.userPhoneNumberDataStore by preferencesDataStore("USER_PHONENUMBER")
 
     suspend fun saveAccessToken(accessToken: String) {
         context.accessTokenDataStore.edit { prefs ->
@@ -52,16 +54,26 @@ class TokenManager @Inject constructor(
         }
     }
 
-    suspend fun saveUserData(userData: UserData) {
-        context.userDataStore.edit { prefs ->
-            prefs[USER_ID] = userData.userId
-            prefs[USER_IMAGE] = userData.userImage
-            prefs[USER_PHONENUMBER] = userData.userPhoneNumber
+    suspend fun saveUserId(userId: String) {
+        context.userIdDataStore.edit { prefs ->
+            prefs[USER_ID] = userId
         }
     }
 
-    fun getUserData(): Flow<List<String>> {
-        return context.userDataStore.data.catch { exception ->
+    suspend fun saveUserImage(userImage: String) {
+        context.userImageDataStore.edit { prefs ->
+            prefs[USER_IMAGE] = userImage
+        }
+    }
+
+    suspend fun saveUserPhoneNumber(phoneNumber: String) {
+        context.userPhoneNumberDataStore.edit { prefs ->
+            prefs[USER_PHONENUMBER] = phoneNumber
+        }
+    }
+
+    fun getUserId(): Flow<String> {
+        return context.userIdDataStore.data.catch { exception ->
             if (exception is IOException) {
                 exception.printStackTrace()
                 emit(emptyPreferences())
@@ -69,16 +81,61 @@ class TokenManager @Inject constructor(
                 throw exception
             }
         }.map { prefs ->
-            prefs.asMap().values.toList().map {
-                it.toString()
+            prefs[USER_ID] ?: ""
+        }
+    }
+
+    suspend fun deleteData(){
+        //userData
+        context.userIdDataStore.edit { it.clear() }
+        context.userPhoneNumberDataStore.edit { it.clear() }
+        context.userImageDataStore.edit { it.clear() }
+
+        //autoLogin
+        context.loginCheckDataStore.edit { it.clear() }
+
+        //token
+        context.accessTokenDataStore.edit { it.clear() }
+        context.refreshTokenDataStore.edit { it.clear() }
+    }
+
+    fun getUserImage(): Flow<String> {
+        return context.userImageDataStore.data.catch { exception ->
+            if (exception is IOException) {
+                exception.printStackTrace()
+                emit(emptyPreferences())
+            } else {
+                throw exception
             }
+        }.map { prefs ->
+            prefs[USER_IMAGE] ?: ""
+        }
+    }
+
+    fun getUserPhoneNumber(): Flow<String> {
+        return context.userPhoneNumberDataStore.data.catch { exception ->
+            if (exception is IOException) {
+                exception.printStackTrace()
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { prefs ->
+            prefs[USER_PHONENUMBER] ?: ""
         }
     }
 
 
     fun getAccessToken(): Flow<String> {
-        return context.accessTokenDataStore.data.map { prefs ->
-            prefs.asMap().values.toString()
+        return context.accessTokenDataStore.data.catch { exception ->
+            if (exception is IOException) {
+                exception.printStackTrace()
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { prefs ->
+            prefs[ACCESS_TOKEN] ?: ""
         }
     }
 
@@ -91,7 +148,7 @@ class TokenManager @Inject constructor(
                 throw exception
             }
         }.map { prefs ->
-            prefs.asMap().values.toString()
+            prefs[REFRESH_TOKEN] ?: ""
         }
     }
 
