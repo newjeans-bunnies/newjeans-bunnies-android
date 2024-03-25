@@ -10,9 +10,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import newjeans.bunnies.data.PreferenceManager
+import newjeans.bunnies.data.TokenManager
 import newjeans.bunnies.main.data.PostData
+import newjeans.bunnies.main.state.PostGoodState
 import newjeans.bunnies.main.state.PostImageState
 import newjeans.bunnies.main.state.PostInfoState
 import newjeans.bunnies.main.state.ReissueTokenState
@@ -29,7 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PostViewModel @Inject constructor(
     private val postRepository: PostRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
     companion object {
         const val TAG = "PostViewModel"
@@ -56,6 +59,9 @@ class PostViewModel @Inject constructor(
     private val _postImageState = MutableSharedFlow<PostImageState>()
     val postImageState: SharedFlow<PostImageState> = _postImageState
 
+    private val _postGoodState = MutableSharedFlow<PostGoodState>()
+    val postGoodState: SharedFlow<PostGoodState> = _postGoodState
+
     fun makePost(makePostRequestDto: MakePostRequestDto) {
         viewModelScope.launch {
             kotlin.runCatching {
@@ -68,20 +74,27 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun postGood(authorization: String, postId: String, userId: String) {
+    fun postGood(postId: String, userId: String) {
         viewModelScope.launch {
             kotlin.runCatching {
-                postRepository.postGood(authorization, postId, userId)
+                postRepository.postGood(postId, userId)
             }.onSuccess {
-
+                _postGoodState.emit(
+                    PostGoodState(
+                        true,
+                        "",
+                        goodStatus = it.goodStatus,
+                        goodCounts = it.goodCount
+                    )
+                )
             }.onFailure { e ->
+                _postGoodState.emit(PostGoodState(false, e.message.toString()))
                 Log.d(TAG, e.message.toString())
             }
         }
     }
 
     fun listPostBasicInfo() {
-        Log.d(TAG, "listPostBasicInfo")
         val lastDate = if (_lastDate.value.isNullOrBlank()) {
             LocalDateTime.now().toString()
         } else {
@@ -101,7 +114,7 @@ class PostViewModel @Inject constructor(
                                 postCreateDate = it.createDate,
                                 goodStatus = null,
                                 postBody = it.body,
-                                goodCount = it.good,
+                                goodCounts = it.good,
                                 postImage = it.images,
                                 userImage = it.userImage
                             )
@@ -117,15 +130,16 @@ class PostViewModel @Inject constructor(
     }
 
 
-    fun listPostDetail(userId: String, prefs: PreferenceManager) {
+    fun listPostDetail() {
         val lastDate = if (_lastDate.value.isNullOrBlank()) {
             LocalDateTime.now().toString()
         } else {
             _lastDate.value ?: LocalDateTime.now().toString()
         }
         viewModelScope.launch {
+            val userId = tokenManager.getUserId().first()
             kotlin.runCatching {
-                postRepository.listPostDetail("Bearer ${prefs.accessToken}", lastDate, userId)
+                postRepository.listPostDetail(lastDate, userId)
             }.onSuccess {
                 if (it.isNotEmpty()) {
                     _lastDate.value = it[it.size - 1].createDate
@@ -137,7 +151,7 @@ class PostViewModel @Inject constructor(
                                 postCreateDate = it.createDate,
                                 goodStatus = null,
                                 postBody = it.body,
-                                goodCount = it.good,
+                                goodCounts = it.good,
                                 postImage = it.images,
                                 userImage = it.userImage
                             )
@@ -147,21 +161,6 @@ class PostViewModel @Inject constructor(
                 _postInfoState.emit(PostInfoState(true, ""))
             }.onFailure { e ->
                 Log.d(TAG, e.message.toString())
-                if (e.message.toString() == "HTTP 401 ") {
-                    if (prefs.refreshToken.isNotEmpty()) {
-                        //reissueToken
-                        reissueToken(prefs.refreshToken, prefs.accessToken, prefs) {
-                            listPostDetail(
-                                userId,
-                                prefs
-                            )
-                        }
-                    } else {
-                        _postInfoState.emit(PostInfoState(false, e.message.toString()))
-                    }
-                } else {
-                    _postInfoState.emit(PostInfoState(false, e.message.toString()))
-                }
             }
         }
     }
@@ -178,10 +177,10 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun postDetail(authorization: String, uuid: String) {
+    fun postDetail(uuid: String) {
         viewModelScope.launch {
             kotlin.runCatching {
-                postRepository.postDetail(authorization, uuid)
+                postRepository.postDetail(uuid)
             }.onSuccess {
 
             }.onFailure { e ->
@@ -190,10 +189,10 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun deletePost(authorization: String, postId: String) {
+    fun deletePost(postId: String) {
         viewModelScope.launch {
             kotlin.runCatching {
-                postRepository.deletePost(authorization, postId)
+                postRepository.deletePost(postId)
             }.onSuccess {
 
             }.onFailure { e ->
@@ -212,28 +211,6 @@ class PostViewModel @Inject constructor(
             }.onFailure { e ->
                 Log.d(TAG, e.message.toString())
                 _postImageState.emit(PostImageState(false, e.message.toString()))
-            }
-        }
-    }
-
-    fun reissueToken(
-        refreshToken: String,
-        accessToken: String,
-        prefs: PreferenceManager,
-        function: () -> Unit
-    ) {
-        viewModelScope.launch {
-            kotlin.runCatching {
-                authRepository.reissueToken(refreshToken, accessToken)
-            }.onSuccess {
-                prefs.accessToken = it.accessToken
-                prefs.expiredAt = it.expiredAt
-                prefs.refreshToken = it.refreshToken
-                _reissueTokenState.emit(ReissueTokenState(true, ""))
-                function()
-            }.onFailure { e ->
-                Log.d(TAG, e.message.toString())
-                _reissueTokenState.emit(ReissueTokenState(false, e.message.toString()))
             }
         }
     }

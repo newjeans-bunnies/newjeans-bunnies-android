@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 import kotlinx.coroutines.launch
-import newjeans.bunnies.data.PreferenceManager
-import newjeans.bunnies.main.presentation.post.state.UserDetailInformationState
+import newjeans.bunnies.main.state.UserDetailInformationState
 import newjeans.bunnies.main.state.ReissueTokenState
 import newjeans.bunnies.network.auth.AuthRepository
 
@@ -51,10 +50,10 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun userUpdate(authorization: String, id: String, userDto: UserDto) {
+    fun userUpdate(id: String, userDto: UserDto) {
         viewModelScope.launch {
             kotlin.runCatching {
-                userRepository.updateUser("Bearer $authorization", id, userDto)
+                userRepository.updateUser(id, userDto)
             }.onSuccess {
 
             }.onFailure { e ->
@@ -63,10 +62,10 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun deleteUser(authorization: String, userId: String) {
+    fun deleteUser(userId: String) {
         viewModelScope.launch {
             kotlin.runCatching {
-                userRepository.deleteUser("Bearer $authorization", userId)
+                userRepository.deleteUser(userId)
             }.onSuccess {
 
             }.onFailure { e ->
@@ -74,28 +73,5 @@ class UserViewModel @Inject constructor(
             }
         }
     }
-
-    fun reissueToken(
-        accessToken: String,
-        refreshToken: String,
-        prefs: PreferenceManager,
-        function: () -> Unit
-    ) {
-        viewModelScope.launch {
-            kotlin.runCatching {
-                authRepository.reissueToken(refreshToken, accessToken)
-            }.onSuccess {
-                prefs.accessToken = it.accessToken
-                prefs.expiredAt = it.expiredAt
-                prefs.refreshToken = it.refreshToken
-                _reissueTokenState.emit(ReissueTokenState(true, ""))
-                function()
-            }.onFailure { e ->
-                Log.d(TAG, e.message.toString())
-                _reissueTokenState.emit(ReissueTokenState(false, e.message.toString()))
-            }
-        }
-    }
-
 
 }
