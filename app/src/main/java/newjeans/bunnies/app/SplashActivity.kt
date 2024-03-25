@@ -3,6 +3,7 @@ package newjeans.bunnies.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 
 import androidx.activity.viewModels
 import androidx.activity.ComponentActivity
@@ -15,7 +16,6 @@ import androidx.compose.runtime.remember
 
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
-import newjeans.bunnies.app.NewJeansBunniesApplication.Companion.prefs
 import newjeans.bunnies.app.viewmodel.SplashViewModel
 import newjeans.bunnies.auth.AuthActivity
 import newjeans.bunnies.main.MainActivity
@@ -43,30 +43,10 @@ class SplashActivity : ComponentActivity() {
         setContent {
             splashScreenState = remember { mutableStateOf(true) }
             splashScreen.setKeepOnScreenCondition { splashScreenState.value }
-            if (prefs.autoLogin)
-                viewModel.reissueToken(accessToken = prefs.accessToken, refreshToken = prefs.refreshToken, prefs = prefs)
-            else
-                authActivity()
-
-
-            LaunchedEffect(viewModel.reissueTokenState) {
-                viewModel.reissueTokenState.collect {
-                    if (it.error.isNotEmpty()) authActivity()
-                    if (it.isSuccess) {
-                        viewModel.getUserDetailInformation(
-                            prefs = prefs, authorization = prefs.accessToken
-                        )
-                    }
-                }
-            }
-
-            LaunchedEffect(viewModel.getUserDetailInformationState) {
-                viewModel.getUserDetailInformationState.collect {
-                    if (it.isSuccess) mainActivity()
-                    if (it.error.isNotEmpty()) authActivity()
-                }
-            }
+            authActivity()
         }
+
+
     }
 
     private fun mainActivity() {
