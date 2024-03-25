@@ -17,7 +17,6 @@ import newjeans.bunnies.auth.state.ReissueTokenState
 import newjeans.bunnies.auth.state.UserDetailInformationState
 
 import newjeans.bunnies.auth.state.login.CheckSupportState
-import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.network.auth.AuthRepository
 import newjeans.bunnies.network.user.UserRepository
 
@@ -66,54 +65,15 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun getUserDetailInformation(authorization: String, prefs: PreferenceManager) {
+    fun getUserDetailInformation() {
         viewModelScope.launch {
             kotlin.runCatching {
-                userRepository.getUserDetails("Bearer $authorization")
+                userRepository.getUserDetails()
             }.onSuccess {
                 Log.d(TAG, it.toString())
-                prefs.userId = it.id
-                prefs.userPhoneNumber = it.phoneNumber
-                prefs.userImage = it.imageUrl
                 _getUserDetailInformationState.emit(UserDetailInformationState(true, ""))
             }.onFailure { e ->
                 Log.d(TAG, e.message.toString())
-                if (prefs.refreshToken.isNotEmpty()) {
-                    reissueToken(
-                        prefs.accessToken,
-                        prefs.refreshToken,
-                        prefs
-                    ) { getUserDetailInformation(authorization, prefs) }
-                } else {
-                    _getUserDetailInformationState.emit(
-                        UserDetailInformationState(
-                            false,
-                            e.message.toString()
-                        )
-                    )
-                }
-            }
-        }
-    }
-
-    fun reissueToken(
-        accessToken: String,
-        refreshToken: String,
-        prefs: PreferenceManager,
-        function: () -> Unit
-    ) {
-        viewModelScope.launch {
-            kotlin.runCatching {
-                authRepository.reissueToken(refreshToken, accessToken)
-            }.onSuccess {
-                prefs.accessToken = it.accessToken
-                prefs.expiredAt = it.expiredAt
-                prefs.refreshToken = it.refreshToken
-                _reissueTokenState.emit(ReissueTokenState(true, ""))
-                function()
-            }.onFailure { e ->
-                Log.d(TAG, e.message.toString())
-                _reissueTokenState.emit(ReissueTokenState(false, e.message.toString()))
             }
         }
     }

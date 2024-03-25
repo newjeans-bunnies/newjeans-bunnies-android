@@ -39,7 +39,6 @@ import newjeans.bunnies.auth.presentation.ui.StatusMessageText
 import newjeans.bunnies.auth.presentation.ui.MainButton
 import newjeans.bunnies.auth.presentation.ui.TextButton
 import newjeans.bunnies.auth.viewmodel.LoginViewModel
-import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.designsystem.theme.CustomColor
 import newjeans.bunnies.designsystem.theme.CustomTextStyle
 
@@ -50,14 +49,11 @@ private const val TAG = "LoginScreen"
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToSignup: () -> Unit,
-    prefs: PreferenceManager,
     toMain: () -> Unit
 ) {
 
     var userId by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
-    var autologinStatus by remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -72,18 +68,16 @@ fun LoginScreen(
         }
         Spacer(modifier = Modifier.height(5.dp))
         StatusMessage(viewModel)
-        Spacer(modifier = Modifier.height(10.dp))
-        AutoLoginLayout{
-            autologinStatus = it
+        Spacer(modifier = Modifier.height(20.dp))
+        AutoLoginLayout {
+            viewModel.autoLoginStatus(it)
         }
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(5.dp))
         MainButton("로그인") {
             if (userId.isNotEmpty() && password.isNotEmpty()) {
                 viewModel.login(
-                    autoLogin = viewModel.autoLoginStatus.value ?: false,
                     userId = userId,
                     password = password,
-                    prefs = prefs
                 )
             }
         }
@@ -95,8 +89,7 @@ fun LoginScreen(
 
     LaunchedEffect(viewModel.loginState) {
         viewModel.loginState.collect {
-            if (it.isSuccess) viewModel.getUserDetailInformation(prefs.accessToken, prefs)
-
+            if (it.isSuccess) viewModel.getUserDetailInformation()
             viewModel.userId("")
             viewModel.password("")
         }
@@ -104,12 +97,10 @@ fun LoginScreen(
 
     LaunchedEffect(viewModel.getUserDetailInformationState) {
         viewModel.getUserDetailInformationState.collect {
-            if (it.isSuccess) {
+            if (it.isSuccess)
                 toMain()
-            }
             if (it.error.isNotEmpty()) {
-                prefs.deleteToken()
-                prefs.deleteUserData()
+
             }
         }
     }

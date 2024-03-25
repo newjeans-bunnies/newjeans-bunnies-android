@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import newjeans.bunnies.auth.state.UserDetailInformationState
 import newjeans.bunnies.auth.state.login.LoginState
-import newjeans.bunnies.data.PreferenceManager
+import newjeans.bunnies.data.TokenManager
 
 import newjeans.bunnies.network.auth.AuthRepository
 import newjeans.bunnies.network.auth.dto.reqeust.LoginReqeustDto
@@ -25,7 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
     companion object {
@@ -65,7 +66,7 @@ class LoginViewModel @Inject constructor(
     val getUserDetailInformationState: SharedFlow<UserDetailInformationState> = _getUserDetailInformationState
 
 
-    fun login(userId: String, password: String, prefs: PreferenceManager) {
+    fun login(userId: String, password: String) {
         viewModelScope.launch {
             kotlin.runCatching {
                 authRepository.login(
@@ -76,12 +77,8 @@ class LoginViewModel @Inject constructor(
                 )
             }.onSuccess {
                 Log.d(TAG, it.toString())
-                with(prefs) {
-                    accessToken = it.accessToken
-                    refreshToken = it.refreshToken
-                    expiredAt = it.expiredAt
-                    this.autoLogin = autoLoginStatus.value?:false
-                }
+                tokenManager.saveRefreshToken(it.refreshToken)
+                tokenManager.saveAccessToken(it.accessToken)
                 _loginState.emit(LoginState(true, ""))
             }.onFailure { e ->
                 _loginState.emit(LoginState(false, e.message.toString()))
@@ -89,15 +86,15 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun getUserDetailInformation(authorization: String, prefs: PreferenceManager) {
+    fun getUserDetailInformation() {
         viewModelScope.launch {
             kotlin.runCatching {
-                userRepository.getUserDetails("Bearer $authorization")
+                userRepository.getUserDetails()
             }.onSuccess {
                 Log.d(TAG, it.toString())
-                prefs.userId = it.id
-                prefs.userPhoneNumber = it.phoneNumber
-                prefs.userImage = it.imageUrl
+                tokenManager.saveUserImage(it.imageUrl)
+                tokenManager.saveUserId(it.id)
+                tokenManager.saveUserPhoneNumber(it.phoneNumber)
                 _getUserDetailInformationState.emit(UserDetailInformationState(true))
             }.onFailure { e ->
                 Log.d(TAG, e.message.toString())

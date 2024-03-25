@@ -22,7 +22,6 @@ import newjeans.bunnies.auth.presentation.SignupScreen
 import newjeans.bunnies.auth.presentation.navigation.NavigationRoute
 import newjeans.bunnies.auth.viewmodel.AuthViewModel
 import newjeans.bunnies.auth.viewmodel.SignupViewModel
-import newjeans.bunnies.data.PreferenceManager
 import newjeans.bunnies.main.MainActivity
 
 
@@ -30,7 +29,6 @@ import newjeans.bunnies.main.MainActivity
 class AuthActivity : ComponentActivity() {
 
     companion object {
-        lateinit var prefs: PreferenceManager
         const val TAG = "AuthActivity"
     }
 
@@ -41,7 +39,6 @@ class AuthActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        prefs = PreferenceManager(this)
         mainActivityIntent = Intent(this, MainActivity::class.java)
         mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         setContent {
@@ -52,7 +49,6 @@ class AuthActivity : ComponentActivity() {
                 composable(NavigationRoute.loginRoute) {
                     LoginScreen(
                         onNavigateToSignup = { authViewModel.checkSupport() },
-                        prefs = prefs,
                         toMain = { startActivity(mainActivityIntent) }
                     )
                 }
@@ -73,8 +69,7 @@ class AuthActivity : ComponentActivity() {
 
             LaunchedEffect(authViewModel.reissueTokenState) {
                 authViewModel.reissueTokenState.collect {
-                    prefs.deleteUserData()
-                    prefs.deleteToken()
+
                 }
             }
         }

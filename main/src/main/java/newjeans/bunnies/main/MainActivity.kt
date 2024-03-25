@@ -33,7 +33,6 @@ import newjeans.bunnies.main.presentation.SettingsScreen
 import newjeans.bunnies.main.presentation.VideoScreen
 import newjeans.bunnies.main.presentation.navigation.BottomNavItem
 import newjeans.bunnies.main.utils.NoRippleInteractionSource
-import newjeans.bunnies.data.PreferenceManager
 
 import dagger.hilt.android.AndroidEntryPoint
 import newjeans.bunnies.main.presentation.ui.AppBar
@@ -44,17 +43,10 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         const val TAG = "MainActivity"
-        lateinit var prefs: PreferenceManager
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        prefs = PreferenceManager(this@MainActivity)
-
-        Log.d("저장", "accessToken: " + prefs.accessToken)
-        Log.d("저장", "refreshToken: " + prefs.refreshToken)
-        Log.d("저장", "expirationTime: " + prefs.expiredAt)
 
         setContent {
             val navController = rememberNavController()
@@ -70,10 +62,6 @@ class MainActivity : ComponentActivity() {
 
     }
 
-    private fun moveToAuthActivity() {
-        finish()
-    }
-
     override fun onBackPressed() {
 
     }
@@ -82,9 +70,7 @@ class MainActivity : ComponentActivity() {
     fun NavigationGraph(navController: NavHostController) {
         NavHost(navController = navController, startDestination = NavigationRoute.postRoute) {
             composable(NavigationRoute.postRoute) {
-                PostScreen(
-                    finish = { moveToAuthActivity() }
-                )
+                PostScreen()
             }
             composable(NavigationRoute.settingsRoute) {
                 SettingsScreen()
@@ -147,10 +133,6 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        if (!prefs.autoLogin) {
-            prefs.deleteToken()
-            prefs.deleteUserData()
-        }
         super.onDestroy()
     }
 }
